@@ -4,7 +4,7 @@ import Footer from './Components/Footer/footer';
 import About from './Components/About/about';
 import Home from './Components/Home/home';
 import Contact from './Components/Contact/contact';
-import FAQs from './Components/FAQs/faqs';
+import FAQs from './Components/Faqs/faq';
 
 function App() {
   return (
