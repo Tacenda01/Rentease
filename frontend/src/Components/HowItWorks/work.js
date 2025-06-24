@@ -13,17 +13,15 @@ import {
 
 export default function HowItWorksSection() {
   return (
-    <section className="bg-gray-50 py-16 px-6 md:px-20 text-gray-800">
+    <section className="bg-gray-50 py-16 px-6 md:px-20 text-gray-800 mt-24">
       <div className="max-w-6xl mx-auto">
 
-        {/* Header */}
         <h2 className="text-4xl font-bold text-center mb-4">How RentEase Works</h2>
-        <p className="text-center text-gray-600 max-w-xl mx-auto mb-12">
+        <p className="text-center text-gray-600 max-w-xl mx-auto mb-24">
           Whether you’re a landlord or a tenant, RentEase makes the rental process seamless, secure, and efficient.
         </p>
 
-        {/* Quick 3-Step Summary */}
-        <div className="grid sm:grid-cols-3 gap-6 text-center mb-16">
+        <div className="grid sm:grid-cols-3 gap-6 text-center mb-24">
           <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
             <Search className="text-sky-500 mx-auto w-8 h-8 mb-2" />
             <h4 className="font-semibold text-lg">Find Properties</h4>
@@ -41,9 +39,7 @@ export default function HowItWorksSection() {
           </div>
         </div>
 
-        {/* Detailed Steps Section */}
         <div className="grid md:grid-cols-2 gap-12 mb-20">
-          {/* Tenants */}
           <div>
             <h3 className="text-2xl font-semibold text-sky-600 mb-6">For Tenants</h3>
             <ul className="space-y-6">
@@ -71,7 +67,6 @@ export default function HowItWorksSection() {
             </ul>
           </div>
 
-          {/* Landlords */}
           <div>
             <h3 className="text-2xl font-semibold text-emerald-600 mb-6">For Landlords</h3>
             <ul className="space-y-6">
@@ -100,7 +95,6 @@ export default function HowItWorksSection() {
           </div>
         </div>
 
-        {/* Why RentEase? */}
         <div className="bg-white p-10 rounded-2xl shadow-md mb-20 border border-gray-200">
           <h3 className="text-2xl font-semibold mb-6 text-gray-800 text-center">Why Choose RentEase?</h3>
           <div className="grid md:grid-cols-3 gap-8 text-center">
@@ -122,7 +116,7 @@ export default function HowItWorksSection() {
           </div>
         </div>
 
-        
+
       </div>
     </section>
   );
