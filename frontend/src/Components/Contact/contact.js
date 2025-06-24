@@ -1,7 +1,7 @@
 
 const Contact = () => {
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4 py-12">
+    <div className="bg-gray-50 flex items-center justify-center px-4 py-12 mt-16">
       <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-2xl">
         <h2 className="text-3xl font-bold text-gray-800 mb-4">Contact Us</h2>
         <p className="text-gray-600 mb-8">Have a question or need help? Fill out the form and we’ll get back to you shortly.</p>

@@ -1,11 +1,9 @@
-import React from 'react';
-
+import FAQSection from "../Faqs/faq";
 const Home = () => {
   return (
-    <div className="bg-gray-50 text-gray-800">
+    <div className="bg-gray-50 text-gray-800 mt-40">
 
-      {/* HERO SECTION */}
-      <section className="min-h-[70vh] flex items-center justify-center text-center px-6 bg-white">
+      <section className="min-h-[50vh] flex items-center justify-center text-center px-6 bg-white">
         <div className="max-w-2xl">
           <h1 className="text-4xl md:text-5xl font-bold mb-4 text-gray-800">
             Find or List Your Perfect Rental Property
@@ -23,8 +21,6 @@ const Home = () => {
           </div>
         </div>
       </section>
-
-      {/* FEATURES SECTION */}
       <section className="py-16 px-6 bg-gray-50">
         <h2 className="text-3xl font-semibold text-center mb-12 text-gray-800">Why Choose RentEase?</h2>
         <div className="grid gap-8 md:grid-cols-3 max-w-6xl mx-auto">
@@ -41,8 +37,6 @@ const Home = () => {
           ))}
         </div>
       </section>
-
-      {/* TESTIMONIALS SECTION */}
       <section className="py-16 px-6 bg-white">
         <h2 className="text-3xl font-semibold text-center mb-12 text-gray-800">What Our Users Say</h2>
         <div className="grid gap-8 md:grid-cols-3 max-w-6xl mx-auto">
@@ -58,6 +52,7 @@ const Home = () => {
           ))}
         </div>
       </section>
+      <FAQSection />
     </div>
   );
 };
