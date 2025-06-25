@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { FaUser, FaEnvelope, FaLock } from 'react-icons/fa';
 import RoleToggle from '../RoleToggle/roletoggle';
-import { toast } from 'react-toastify'; // ✅ import toast
+import { toast } from 'react-toastify';
+import { Link } from 'react-router-dom';
 
 export default function Register() {
     const [role, setRole] = useState('tenant');
@@ -9,18 +10,33 @@ export default function Register() {
 
     const handleChange = e => setFormData({ ...formData, [e.target.name]: e.target.value });
 
-    const handleSubmit = e => {
+    const handleSubmit = async e => {
         e.preventDefault();
 
-        // Example registration check
-        if (formData.name && formData.email.includes('@') && formData.password.length >= 6) {
-            toast.success(`Registered successfully as ${role.charAt(0).toUpperCase() + role.slice(1)}!`);
+        if (formData.name && formData.email.includes('@') && formData.password.length >= 4) {
+            try {
+                const res = await fetch('http://localhost:5000/api/auth/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ ...formData, role }),
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    toast.success(data.message || 'Registered successfully!');
+                    setFormData({ name: '', email: '', password: '' });
+                } else {
+                    toast.error(data.error || 'Registration failed.');
+                }
+            } catch (error) {
+                toast.error('Server error. Please try again.');
+            }
         } else {
             toast.error('Please fill all fields correctly.');
         }
-
-        console.log(`Registering as ${role}`, formData);
     };
+
 
     return (
         <div className="min-h-[35rem] flex justify-center items-center px-4 pt-32">
@@ -75,6 +91,13 @@ export default function Register() {
                         Register
                     </button>
                 </form>
+
+                <p className="text-sm text-center text-gray-600 mt-4">
+                    Already have an account?{' '}
+                    <Link to="/login" className="text-blue-600 hover:underline font-medium">
+                        Login here
+                    </Link>
+                </p>
             </div>
         </div>
     );

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { FaEnvelope, FaLock } from 'react-icons/fa';
 import RoleToggle from '../RoleToggle/roletoggle';
 import { toast } from 'react-toastify';
+import { Link } from 'react-router-dom';
 
 export default function Login() {
     const [role, setRole] = useState('tenant');
@@ -9,17 +10,28 @@ export default function Login() {
 
     const handleChange = e => setFormData({ ...formData, [e.target.name]: e.target.value });
 
-    const handleSubmit = e => {
+    const handleSubmit = async e => {
         e.preventDefault();
 
-        if (formData.email === 'admin@example.com' && formData.password === 'admin123') {
-            toast.success(`Welcome back, ${role === 'tenant' ? 'Tenant' : 'Landlord'}!`);
-        } else {
-            toast.error('Invalid credentials. Please try again.');
-        }
+        try {
+            const res = await fetch('http://localhost:5000/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ ...formData, role }),
+            });
 
-        console.log(`Logging in as ${role}`, formData);
+            const data = await res.json();
+
+            if (res.ok) {
+                toast.success(data.message || 'Login successful!');
+            } else {
+                toast.error(data.error || 'Invalid credentials');
+            }
+        } catch (error) {
+            toast.error('Server error. Please try again.');
+        }
     };
+
 
     return (
         <div className="min-h-[35rem] flex justify-center items-center px-4 pt-32">
@@ -62,6 +74,13 @@ export default function Login() {
                         Login
                     </button>
                 </form>
+
+                <p className="text-sm text-center text-gray-600 mt-4">
+                    Don't have an account?{' '}
+                    <Link to="/register" className="text-blue-600 hover:underline font-medium">
+                        Register now
+                    </Link>
+                </p>
             </div>
         </div>
     );
