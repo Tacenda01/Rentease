@@ -7,8 +7,13 @@ import Contact from "./Components/Contact/contact";
 import Login from "./Components/Login/login";
 import Register from "./Components/Register/register";
 import Admin from "./Components/Admin/admin";
+<<<<<<< Updated upstream
 import Landlord from "./Components/Landlord/landlord";
 import TenantRoutes from "./Components/Tenant/tenant"; // This returns <Routes> block
+=======
+import LandlordRoutes from "./Components/Landlord/landlordroutes"; // ✅ updated
+import Tenant from "./Components/Tenant/tenant";
+>>>>>>> Stashed changes
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -26,10 +31,15 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/admin" element={<Admin />} />
+<<<<<<< Updated upstream
             <Route path="/landlord" element={<Landlord />} />
 
             {/* Optional: Redirect base /tenant to /tenant/dashboard */}
             <Route path="/tenant" element={<Navigate to="/tenant/dashboard" replace />} />
+=======
+            <Route path="/landlord/*" element={<LandlordRoutes />} /> {/* ✅ updated */}
+            <Route path="/tenant" element={<Tenant />} />
+>>>>>>> Stashed changes
           </Routes>
 
           {/* ✅ Tenant Routes are handled separately here */}
