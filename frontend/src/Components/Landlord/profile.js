@@ -1,6 +1,4 @@
-import React from 'react';
-
-export function Profile() {
+export default function Profile() {
   return (
     <div className="p-6">
       <h1 className="text-2xl font-semibold text-gray-800">Profile Settings</h1>

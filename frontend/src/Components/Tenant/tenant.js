@@ -1,5 +1,5 @@
-import { Routes, Route } from 'react-router-dom';
-import TenantLayout from './TenantLayout'; // Make sure the path is correct
+import { Routes, Route, Navigate } from 'react-router-dom';
+import TenantLayout from './TenantLayout';
 import Dashboard from './Dashboard';
 import SearchProperties from './SearchProperties';
 import MyBookings from './MyBookings';
@@ -9,11 +9,14 @@ import Payments from './Payments';
 import Reviews from './Reviews';
 import ProfileSettings from './ProfileSettings';
 import Logout from './Logout';
+import NotFound from '../../notfound';
 
 export default function TenantRoutes() {
   return (
     <Routes>
-      <Route path="/tenant" element={<TenantLayout />}>
+      <Route path="" element={<NotFound />} />
+
+      <Route path="/" element={<TenantLayout />}>
         <Route path="dashboard" element={<Dashboard />} />
         <Route path="search" element={<SearchProperties />} />
         <Route path="bookings" element={<MyBookings />} />
@@ -22,11 +25,10 @@ export default function TenantRoutes() {
         <Route path="payments" element={<Payments />} />
         <Route path="reviews" element={<Reviews />} />
         <Route path="profile" element={<ProfileSettings />} />
+        <Route path="*" element={<Navigate to="/tenant/dashboard" />} />
       </Route>
-      
-      {/* Logout should remain outside tenant layout */}
+
       <Route path="/logout" element={<Logout />} />
     </Routes>
   );
 }
-

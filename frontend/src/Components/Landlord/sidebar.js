@@ -1,8 +1,13 @@
-import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
-
 import { MdDashboard } from 'react-icons/md';
-import { FaHome, FaCalendarAlt, FaComments, FaMoneyCheckAlt, FaStar, FaUserCog } from 'react-icons/fa';
+import {
+  FaHome,
+  FaCalendarAlt,
+  FaComments,
+  FaMoneyCheckAlt,
+  FaStar,
+  FaUserCog,
+} from 'react-icons/fa';
 import { FiLogOut, FiMenu } from 'react-icons/fi';
 
 const navItems = [
@@ -15,48 +20,55 @@ const navItems = [
   { label: 'Profile Settings', to: '/landlord/profile', icon: <FaUserCog /> },
 ];
 
-function Sidebar() {
-  const [collapsed, setCollapsed] = useState(false);
-
+function Sidebar({ collapsed, setCollapsed }) {
   return (
-    <div className={`bg-white border-r border-slate-200 h-screen transition-all duration-300 ${collapsed ? 'w-16' : 'w-64'} hidden md:flex flex-col fixed z-30`}>
-      {/* Header + Collapse Button */}
-      <div className="flex items-center justify-between p-4 border-b border-slate-100">
-        {!collapsed && <span className="text-xl font-bold text-blue-600">RentEase</span>}
-        <button onClick={() => setCollapsed(!collapsed)} className="text-gray-600 hover:text-blue-500">
-          <FiMenu size={20} />
+    <div
+      className={`fixed z-50 md:z-auto top-0 left-0 h-full bg-white border-r border-slate-200 transition-all duration-300 ease-in-out 
+        ${collapsed ? 'w-20' : 'w-64'} hidden md:flex flex-col`}
+    >
+      <div className="flex items-center justify-between p-4 border-b border-slate-200">
+        <h1
+          className={`text-xl font-bold text-sky-500 transition-all duration-200 ${collapsed ? 'hidden' : 'block'
+            }`}
+        >
+          RentEase
+        </h1>
+        <button
+          onClick={() => setCollapsed(!collapsed)}
+          className="text-gray-600 hover:text-sky-500"
+        >
+          <FiMenu className="text-lg" />
         </button>
       </div>
 
-      {/* Navigation Links */}
-      <nav className="flex-1 flex flex-col gap-1 mt-4">
+      <nav className="flex-1 flex flex-col gap-1 p-2">
         {navItems.map((item) => (
           <NavLink
             key={item.to}
             to={item.to}
             className={({ isActive }) =>
-              `flex items-center gap-3 px-4 py-2 text-gray-700 hover:bg-blue-50 transition rounded-r-full border-l-4 ${
-                isActive ? 'bg-blue-100 text-blue-600 border-blue-500 font-semibold' : 'border-transparent'
+              `flex items-center gap-3 px-3 py-2 rounded-md transition-all
+              ${isActive
+                ? 'bg-sky-100 text-sky-600 font-semibold'
+                : 'text-gray-600 hover:bg-gray-100'
               }`
             }
           >
             <span className="text-xl">{item.icon}</span>
-            {!collapsed && <span>{item.label}</span>}
+            {!collapsed && <span className="text-sm">{item.label}</span>}
           </NavLink>
         ))}
       </nav>
 
-      {/* Logout Button */}
       <div className="p-4 mt-auto">
         <button
           onClick={() => {
-            // TODO: Implement logout handler
             console.log('Logging out...');
           }}
-          className="flex items-center gap-3 w-full text-gray-700 hover:bg-rose-100 px-4 py-2 rounded-r-full transition"
+          className="flex items-center gap-3 w-full text-red-500 px-3 py-2 mt-4 rounded-md hover:bg-red-50 transition"
         >
           <FiLogOut className="text-xl" />
-          {!collapsed && <span>Logout</span>}
+          {!collapsed && <span className="text-sm">Logout</span>}
         </button>
       </div>
     </div>

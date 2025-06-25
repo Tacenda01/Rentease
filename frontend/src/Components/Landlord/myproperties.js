@@ -1,6 +1,4 @@
-import React from 'react';
-
-export function MyProperties() {
+export default function MyProperties() {
   return (
     <div className="p-6">
       <h1 className="text-2xl font-semibold text-gray-800">My Properties</h1>
