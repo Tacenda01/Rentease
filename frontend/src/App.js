@@ -6,6 +6,9 @@ import Home from "./Components/Home/home";
 import Contact from "./Components/Contact/contact";
 import Login from "./Components/Login/login";
 import Register from "./Components/Register/register";
+import Admin from "./Components/Admin/admin";
+import Landlord from "./Components/Landlord/landlord";
+import Tenant from "./Components/Tenant/tenant";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -21,6 +24,9 @@ function App() {
             <Route path="/contact" element={<Contact />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/admin" element={<Admin />} />
+            <Route path="/landlord" element={<Landlord />} />
+            <Route path="/tenant" element={<Tenant />} />
           </Routes>
         </main>
         <Footer />
