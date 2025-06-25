@@ -2,9 +2,10 @@ import { useState } from 'react';
 import { FaUser, FaEnvelope, FaLock } from 'react-icons/fa';
 import RoleToggle from '../RoleToggle/roletoggle';
 import { toast } from 'react-toastify';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 export default function Register() {
+    const navigate = useNavigate();
     const [role, setRole] = useState('tenant');
     const [formData, setFormData] = useState({ name: '', email: '', password: '' });
 
@@ -25,6 +26,9 @@ export default function Register() {
 
                 if (res.ok) {
                     toast.success(data.message || 'Registered successfully!');
+                    setTimeout(() => {
+                        navigate('/login');
+                    }, 2000);
                     setFormData({ name: '', email: '', password: '' });
                 } else {
                     toast.error(data.error || 'Registration failed.');
@@ -36,6 +40,7 @@ export default function Register() {
             toast.error('Please fill all fields correctly.');
         }
     };
+
 
 
     return (

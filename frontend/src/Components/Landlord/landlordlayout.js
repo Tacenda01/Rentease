@@ -1,13 +1,18 @@
-import React from 'react';
+import { useState } from 'react';
 import Sidebar from './sidebar';
 import { Outlet } from 'react-router-dom';
 
 function LandlordLayout() {
+  const [collapsed, setCollapsed] = useState(false);
+
   return (
     <div className="flex">
-      <Sidebar />
-      <div className="flex-1 ml-16 md:ml-64 bg-[#F9FAFB] min-h-screen p-4">
-        <Outlet /> {/* this is where nested pages render */}
+      <Sidebar collapsed={collapsed} setCollapsed={setCollapsed} />
+      <div
+        className={`flex-1 bg-[#F9FAFB] min-h-screen p-4 transition-all duration-300 ${collapsed ? 'ml-20' : 'ml-64'
+          }`}
+      >
+        <Outlet />
       </div>
     </div>
   );
