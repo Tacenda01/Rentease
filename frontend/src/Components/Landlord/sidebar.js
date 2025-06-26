@@ -9,6 +9,7 @@ import {
   FaUserCog,
 } from 'react-icons/fa';
 import { FiLogOut, FiMenu } from 'react-icons/fi';
+import { toast } from 'react-toastify';
 
 const navItems = [
   { label: 'Dashboard', to: '/landlord/dashboard', icon: <MdDashboard /> },
@@ -63,13 +64,18 @@ function Sidebar({ collapsed, setCollapsed }) {
       <div className="p-4 mt-auto">
         <button
           onClick={() => {
-            console.log('Logging out...');
+            localStorage.clear();
+            toast.success('Logged out successfully');
+            setTimeout(() => {
+              window.location.href = '/login';
+            }, 500);
           }}
-          className="flex items-center gap-3 w-full text-red-500 px-3 py-2 mt-4 rounded-md hover:bg-red-50 transition"
+          className="flex items-center gap-3 text-red-500 px-3 py-2 rounded-md hover:bg-red-50 transition w-full"
         >
           <FiLogOut className="text-xl" />
           {!collapsed && <span className="text-sm">Logout</span>}
         </button>
+
       </div>
     </div>
   );

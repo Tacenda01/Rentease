@@ -2,11 +2,12 @@ import { useState } from 'react';
 import { FaEnvelope, FaLock } from 'react-icons/fa';
 import RoleToggle from '../RoleToggle/roletoggle';
 import { toast } from 'react-toastify';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 export default function Login() {
     const [role, setRole] = useState('tenant');
     const [formData, setFormData] = useState({ email: '', password: '' });
+    const navigate = useNavigate(); // ✅
 
     const handleChange = e => setFormData({ ...formData, [e.target.name]: e.target.value });
 
@@ -24,6 +25,15 @@ export default function Login() {
 
             if (res.ok) {
                 toast.success(data.message || 'Login successful!');
+                localStorage.setItem('name', data.name);
+                localStorage.setItem('role', role);
+                localStorage.setItem('email', formData.email);
+
+                if (role === 'tenant') {
+                    navigate('/tenant/dashboard');
+                } else if (role === 'landlord') {
+                    navigate('/landlord/dashboard');
+                }
             } else {
                 toast.error(data.error || 'Invalid credentials');
             }
@@ -31,7 +41,6 @@ export default function Login() {
             toast.error('Server error. Please try again.');
         }
     };
-
 
     return (
         <div className="min-h-[35rem] flex justify-center items-center px-4 pt-32">
