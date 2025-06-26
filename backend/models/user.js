@@ -20,4 +20,31 @@ async function findUserByEmail(email, role) {
     return result.rows[0];
 }
 
-module.exports = { createTenant, createLandlord, findUserByEmail };
+async function initializeTables() {
+    await pool.query(`
+        CREATE TABLE IF NOT EXISTS tenants (
+            id SERIAL PRIMARY KEY,
+            name TEXT NOT NULL,
+            email TEXT UNIQUE NOT NULL,
+            password TEXT NOT NULL
+        );
+    `);
+
+    await pool.query(`
+        CREATE TABLE IF NOT EXISTS landlords (
+            id SERIAL PRIMARY KEY,
+            name TEXT NOT NULL,
+            email TEXT UNIQUE NOT NULL,
+            password TEXT NOT NULL
+        );
+    `);
+
+    console.log("Tenant and Landlord tables are ready.");
+}
+
+module.exports = {
+    createTenant,
+    createLandlord,
+    findUserByEmail,
+    initializeTables,
+};
