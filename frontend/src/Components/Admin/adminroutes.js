@@ -8,21 +8,28 @@ import Transactions from './Transactions';
 import Reviews from './Reviews';
 import Notifications from './Notifications';
 import Settings from './Settings';
+
 function AdminRoutes() {
+    const isAdmin = localStorage.getItem('adminRole') === 'admin';
+
+    if (!isAdmin) {
+        return <Navigate to="/admin/login" replace />;
+    }
+
     return (
-        <Routes>
-            <Route path="/admin" element={<AdminLayout />}>
-                <Route path="Dashboard" element={<Dashboard />} />
-                <Route path="Users" element={<Users />} />
-                <Route path="Properties" element={<Properties />} />
-                <Route path="Bookings" element={<BookingRequests />} />
-                <Route path="Transactions" element={<Transactions />} />
-                <Route path="Reviews" element={<Reviews />} />
-                <Route path="Notifications" element={<Notifications />} />
-                <Route path="Settings" element={<Settings />} />
-                <Route path="*" element={<Navigate to="/admin/dashboard" />} />
-            </Route>
-        </Routes>
+        <AdminLayout>
+            <Routes>
+                <Route path="dashboard" element={<Dashboard />} />
+                <Route path="users" element={<Users />} />
+                <Route path="properties" element={<Properties />} />
+                <Route path="bookings" element={<BookingRequests />} />
+                <Route path="transactions" element={<Transactions />} />
+                <Route path="reviews" element={<Reviews />} />
+                <Route path="notifications" element={<Notifications />} />
+                <Route path="settings" element={<Settings />} />
+                <Route path="*" element={<Navigate to="dashboard" />} />
+            </Routes>
+        </AdminLayout>
     );
 }
 

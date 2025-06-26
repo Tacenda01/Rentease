@@ -19,7 +19,10 @@ async function findUserByEmail(email, role) {
     const result = await pool.query(`SELECT * FROM ${table} WHERE email = $1`, [email]);
     return result.rows[0];
 }
-
+async function findAdminByEmail(email) {
+    const result = await pool.query('SELECT * FROM admins WHERE email = $1', [email]);
+    return result.rows[0];
+}
 async function initializeTables() {
     await pool.query(`
         CREATE TABLE IF NOT EXISTS tenants (
@@ -38,7 +41,14 @@ async function initializeTables() {
             password TEXT NOT NULL
         );
     `);
-
+    await pool.query(`
+        CREATE TABLE IF NOT EXISTS admins (
+            id SERIAL PRIMARY KEY,
+            name TEXT NOT NULL,
+            email TEXT UNIQUE NOT NULL,
+            password TEXT NOT NULL
+        );
+    `);
     console.log("Tenant and Landlord tables are ready.");
 }
 
@@ -47,4 +57,5 @@ module.exports = {
     createLandlord,
     findUserByEmail,
     initializeTables,
+    findAdminByEmail
 };

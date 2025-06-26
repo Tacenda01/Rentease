@@ -76,7 +76,7 @@ const AdminSidebar = ({ collapsed, setCollapsed }) => {
                                     localStorage.clear();
                                     toast.success('Logged out successfully');
                                     setTimeout(() => {
-                                        window.location.href = '/login';
+                                        window.location.href = 'admin/login';
                                     }, 500);
                                 }}
                                 className="flex items-center gap-3 text-red-500 px-3 py-2 rounded-md hover:bg-red-50 transition w-full"

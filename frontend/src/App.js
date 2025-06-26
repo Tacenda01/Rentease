@@ -6,6 +6,7 @@ import HowItWorksSection from "./Components/HowItWorks/work";
 import Contact from "./Components/Contact/contact";
 import Login from "./Components/Login/login";
 import Register from "./Components/Register/register";
+import AdminLogin from "./Components/Admin/adminlogin";
 import AdminRoutes from "./Components/Admin/adminroutes";
 import LandlordRoutes from "./Components/Landlord/landlordroutes";
 import TenantRoutes from "./Components/Tenant/tenant";
@@ -22,14 +23,7 @@ function AppWrapper() {
     path.startsWith("/landlord") ||
     path.startsWith("/admin");
 
-  const isPublicRoute =
-    path === "/" ||
-    path === "/login" ||
-    path === "/register" ||
-    path === "/contact" ||
-    path === "/how-it-works";
-
-  const shouldHideLayout = !isPublicRoute || isDashboardRoute;
+  const shouldHideLayout = isDashboardRoute || path === "/admin/login";
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
@@ -41,11 +35,13 @@ function AppWrapper() {
           <Route path="/contact" element={<Contact />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/tenant/*" element={<TenantRoutes />} />
           <Route path="/landlord/*" element={<LandlordRoutes />} />
           <Route path="/admin/*" element={<AdminRoutes />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
+
       </main>
       {!shouldHideLayout && <Footer />}
 
