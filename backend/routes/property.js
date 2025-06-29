@@ -4,7 +4,7 @@ const pool = require('../db');
 
 router.post('/add', async (req, res) => {
     const {
-        landlordId,
+        userId,
         title,
         description,
         city,
@@ -18,7 +18,7 @@ router.post('/add', async (req, res) => {
     } = req.body;
 
     if (
-        !landlordId || !title || !price || !city || !bedrooms ||
+        !userId || !title || !price || !city || !bedrooms ||
         !bathrooms || !area || !images || images.length === 0
     ) {
         return res.status(400).json({ error: 'Missing required fields' });
@@ -29,11 +29,11 @@ router.post('/add', async (req, res) => {
     try {
         const result = await pool.query(
             `INSERT INTO properties
-             (landlord_id, title, description, price, location, image_urls, bedrooms, bathrooms, area, property_type)
+             (user_id, title, description, price, location, image_urls, bedrooms, bathrooms, area, property_type)
              VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
              RETURNING *`,
             [
-                landlordId,
+                userId,
                 title,
                 description || '',
                 price,
@@ -64,12 +64,12 @@ router.post('/add', async (req, res) => {
     }
 });
 
-router.get('/landlord/:id', async (req, res) => {
+router.get('/user/:id', async (req, res) => {
     const { id } = req.params;
 
     try {
         const result = await pool.query(
-            'SELECT * FROM properties WHERE landlord_id = $1 ORDER BY created_at DESC',
+            'SELECT * FROM properties WHERE user_id = $1 ORDER BY created_at DESC',
             [id]
         );
 
@@ -87,6 +87,28 @@ router.get('/landlord/:id', async (req, res) => {
         res.json(properties);
     } catch (error) {
         console.error('Error fetching properties:', error);
+        res.status(500).json({ error: 'Failed to fetch properties' });
+    }
+});
+
+router.get('/', async (req, res) => {
+    try {
+        const result = await pool.query('SELECT * FROM properties ORDER BY created_at DESC');
+
+        const properties = result.rows.map((row) => ({
+            ...row,
+            images: Array.isArray(row.image_urls)
+                ? row.image_urls
+                : row.image_urls
+                    ?.replace(/^{|}$/g, '')
+                    .split(',')
+                    .map((url) => url.trim()) || [],
+            city: row.location?.split(',')[0] || ''
+        }));
+
+        res.json(properties);
+    } catch (error) {
+        console.error('Error fetching all properties:', error);
         res.status(500).json({ error: 'Failed to fetch properties' });
     }
 });

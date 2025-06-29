@@ -60,7 +60,6 @@ router.put('/profile', async (req, res) => {
     }
 });
 
-// UPDATE PASSWORD
 router.put('/password', async (req, res) => {
     const { email, role, currentPassword, newPassword } = req.body;
 

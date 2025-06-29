@@ -8,12 +8,12 @@ export default function MyProperties() {
   const [showForm, setShowForm] = useState(false);
   const [selectedProperty, setSelectedProperty] = useState(null);
 
-  const landlordId = localStorage.getItem("landlordId");
+  const userId = localStorage.getItem("userId");
 
   useEffect(() => {
     const fetchProperties = async () => {
       try {
-        const res = await fetch(`http://localhost:5000/api/property/landlord/${landlordId}`);
+        const res = await fetch(`http://localhost:5000/api/property/landlord/${userId}`);
         if (!res.ok) throw new Error("Failed to fetch properties");
         const data = await res.json();
         setProperties(data);
@@ -22,10 +22,10 @@ export default function MyProperties() {
       }
     };
 
-    if (landlordId) {
+    if (userId) {
       fetchProperties();
     }
-  }, [landlordId]);
+  }, [userId]);
 
   const handleAddProperty = async (newProperty) => {
     try {
@@ -34,7 +34,7 @@ export default function MyProperties() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...newProperty,
-          landlordId,
+          userId,
         }),
       });
 
