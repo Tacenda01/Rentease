@@ -1,11 +1,11 @@
 import { useState } from "react";
-import {
-  FaTimes, FaChevronLeft, FaChevronRight
-} from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
+import { FaTimes, FaChevronLeft, FaChevronRight } from "react-icons/fa";
 
 export default function PropertyModal({ property, onClose }) {
   const [galleryOpen, setGalleryOpen] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const navigate = useNavigate();
 
   const openGallery = (index) => {
     setCurrentIndex(index);
@@ -47,10 +47,7 @@ export default function PropertyModal({ property, onClose }) {
           <h2 className="text-2xl font-bold mb-2">{property.title}</h2>
           <p className="text-gray-600 mb-4">{property.city}</p>
 
-          <div
-            className="relative overflow-hidden mb-4"
-            style={{ height: "6rem" }}
-          >
+          <div className="relative overflow-hidden mb-4" style={{ height: "6rem" }}>
             <div
               className="flex space-x-2 absolute top-0 left-0 animate-scroll-left hover:animation-play-state-paused"
               style={{ width: `${imagesForScroll.length * 8}rem` }}
@@ -71,13 +68,22 @@ export default function PropertyModal({ property, onClose }) {
           <p className="text-gray-700 mb-6 whitespace-pre-line">{property.description}</p>
 
           <div className="flex flex-col md:flex-row justify-center items-center gap-4">
-            <button className="bg-emerald-500 text-white px-4 py-2 rounded hover:bg-emerald-600">
+            <button
+              onClick={() => navigate('/login')}
+              className="bg-emerald-500 text-white px-4 py-2 rounded hover:bg-emerald-600"
+            >
               Contact Owner
             </button>
-            <button className="bg-sky-500 text-white px-4 py-2 rounded hover:bg-sky-600">
+            <button
+              onClick={() => navigate('/login')}
+              className="bg-sky-500 text-white px-4 py-2 rounded hover:bg-sky-600"
+            >
               Book this Property
             </button>
-            <button className="bg-amber-400 text-white px-4 py-2 rounded hover:bg-amber-500 flex items-center gap-2">
+            <button
+              onClick={() => navigate('/login')}
+              className="bg-amber-400 text-white px-4 py-2 rounded hover:bg-amber-500 flex items-center gap-2"
+            >
               Save this Property
             </button>
           </div>
