@@ -46,18 +46,22 @@ router.post('/add', async (req, res) => {
             ]
         );
 
-        const property = result.rows[0];
-        property.images = Array.isArray(property.image_urls)
-            ? property.image_urls
-            : property.image_urls
-                ?.replace(/^{|}$/g, '')
-                .split(',')
-                .map((url) => url.trim()) || [];
+        const dbProp = result.rows[0];
+
+        const property = {
+            ...dbProp,
+            images: Array.isArray(dbProp.image_urls)
+                ? dbProp.image_urls
+                : dbProp.image_urls?.replace(/^{|}$/g, '').split(',').map(url => url.trim()) || [],
+            city: dbProp.location?.split(',')[0] || ''
+        };
 
         res.status(201).json({
             message: 'Property added successfully',
             property
         });
+
+
     } catch (error) {
         console.error('Error adding property:', error);
         res.status(500).json({ error: 'Failed to add property' });
@@ -66,21 +70,17 @@ router.post('/add', async (req, res) => {
 
 router.get('/user/:id', async (req, res) => {
     const { id } = req.params;
-
     try {
         const result = await pool.query(
             'SELECT * FROM properties WHERE user_id = $1 ORDER BY created_at DESC',
             [id]
         );
 
-        const properties = result.rows.map((row) => ({
+        const properties = result.rows.map(row => ({
             ...row,
             images: Array.isArray(row.image_urls)
                 ? row.image_urls
-                : row.image_urls
-                    ?.replace(/^{|}$/g, '')
-                    .split(',')
-                    .map((url) => url.trim()) || [],
+                : row.image_urls?.replace(/^{|}$/g, '').split(',').map(url => url.trim()) || [],
             city: row.location?.split(',')[0] || ''
         }));
 
@@ -94,23 +94,43 @@ router.get('/user/:id', async (req, res) => {
 router.get('/', async (req, res) => {
     try {
         const result = await pool.query('SELECT * FROM properties ORDER BY created_at DESC');
-
-        const properties = result.rows.map((row) => ({
+        const properties = result.rows.map(row => ({
             ...row,
             images: Array.isArray(row.image_urls)
                 ? row.image_urls
-                : row.image_urls
-                    ?.replace(/^{|}$/g, '')
-                    .split(',')
-                    .map((url) => url.trim()) || [],
+                : row.image_urls?.replace(/^{|}$/g, '').split(',').map(url => url.trim()) || [],
             city: row.location?.split(',')[0] || ''
         }));
-
         res.json(properties);
     } catch (error) {
         console.error('Error fetching all properties:', error);
         res.status(500).json({ error: 'Failed to fetch properties' });
     }
 });
+
+router.delete('/:id', async (req, res) => {
+    const { id } = req.params;
+
+    if (!/^[0-9a-fA-F-]{36}$/.test(id)) {
+        return res.status(400).json({ error: 'Invalid UUID format for property_id' });
+    }
+
+    try {
+        const result = await pool.query(
+            'DELETE FROM properties WHERE property_id = $1',
+            [id]
+        );
+
+        if (result.rowCount === 0) {
+            return res.status(404).json({ error: 'Property not found or already deleted' });
+        }
+
+        res.status(200).json({ message: 'Property deleted successfully' });
+    } catch (error) {
+        console.error('Error deleting property:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
 
 module.exports = router;

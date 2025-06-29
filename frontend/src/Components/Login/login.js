@@ -7,19 +7,22 @@ import { Link, useNavigate } from 'react-router-dom';
 export default function Login() {
     const [role, setRole] = useState('tenant');
     const [formData, setFormData] = useState({ email: '', password: '' });
+    const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
-    const handleChange = e =>
+    const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
 
-    const handleSubmit = async e => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
+        setLoading(true);
 
         try {
             const res = await fetch('http://localhost:5000/api/auth/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ ...formData, role }),
+                body: JSON.stringify({ ...formData, role })
             });
 
             const data = await res.json();
@@ -27,16 +30,16 @@ export default function Login() {
             if (res.ok) {
                 toast.success(data.message || 'Login successful!');
 
+                localStorage.setItem('token', data.token);
                 localStorage.setItem('userId', data.id);
-                localStorage.setItem('role', role);
+                localStorage.setItem('role', data.role);
                 localStorage.setItem('email', data.email);
                 localStorage.setItem('firstName', data.firstName);
                 localStorage.setItem('lastName', data.lastName);
 
                 if (role === 'landlord') {
-                    localStorage.setItem('userId', data.id);
                     navigate('/landlord/dashboard');
-                } else if (role === 'tenant') {
+                } else {
                     navigate('/tenant/dashboard');
                 }
             } else {
@@ -45,6 +48,8 @@ export default function Login() {
         } catch (error) {
             console.error(error);
             toast.error('Server error. Please try again.');
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -66,7 +71,7 @@ export default function Login() {
                             placeholder="Email"
                             onChange={handleChange}
                             required
-                            className="pl-10 w-full py-2 bg-white rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-300 focus:outline-none shadow-sm"
+                            className="pl-10 w-full py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-300"
                         />
                     </div>
 
@@ -78,15 +83,16 @@ export default function Login() {
                             placeholder="Password"
                             onChange={handleChange}
                             required
-                            className="pl-10 w-full py-2 bg-white rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-300 focus:outline-none shadow-sm"
+                            className="pl-10 w-full py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-300"
                         />
                     </div>
 
                     <button
                         type="submit"
-                        className="w-full py-2 bg-[#3B82F6] hover:bg-blue-700 text-white font-semibold rounded-lg shadow-md transition"
+                        disabled={loading}
+                        className={`w-full py-2 bg-[#3B82F6] hover:bg-blue-700 text-white font-semibold rounded-lg shadow-md transition ${loading ? 'opacity-60 cursor-not-allowed' : ''}`}
                     >
-                        Login
+                        {loading ? 'Logging in...' : 'Login'}
                     </button>
                 </form>
 
