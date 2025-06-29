@@ -3,13 +3,19 @@ const cors = require('cors');
 require('dotenv').config();
 
 const authRoutes = require('./routes/auth');
+const userRoutes = require('./routes/user');
+const propertyRoutes = require('./routes/property');
+
+
 const { initializeTables } = require('./models/user');
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
+app.use('/api/property', propertyRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/user', userRoutes);
 
 const PORT = process.env.PORT || 5000;
 

@@ -9,7 +9,8 @@ export default function Login() {
     const [formData, setFormData] = useState({ email: '', password: '' });
     const navigate = useNavigate();
 
-    const handleChange = e => setFormData({ ...formData, [e.target.name]: e.target.value });
+    const handleChange = e =>
+        setFormData({ ...formData, [e.target.name]: e.target.value });
 
     const handleSubmit = async e => {
         e.preventDefault();
@@ -25,19 +26,24 @@ export default function Login() {
 
             if (res.ok) {
                 toast.success(data.message || 'Login successful!');
-                localStorage.setItem('name', data.name);
-                localStorage.setItem('role', role);
-                localStorage.setItem('email', formData.email);
 
-                if (role === 'tenant') {
-                    navigate('/tenant/dashboard');
-                } else if (role === 'landlord') {
+                localStorage.setItem('userId', data.id);
+                localStorage.setItem('role', role);
+                localStorage.setItem('email', data.email);
+                localStorage.setItem('firstName', data.firstName);
+                localStorage.setItem('lastName', data.lastName);
+
+                if (role === 'landlord') {
+                    localStorage.setItem('landlordId', data.id);
                     navigate('/landlord/dashboard');
+                } else if (role === 'tenant') {
+                    navigate('/tenant/dashboard');
                 }
             } else {
                 toast.error(data.error || 'Invalid credentials');
             }
         } catch (error) {
+            console.error(error);
             toast.error('Server error. Please try again.');
         }
     };

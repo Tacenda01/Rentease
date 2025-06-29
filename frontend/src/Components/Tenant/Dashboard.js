@@ -1,29 +1,51 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import {
   FaHeart,
   FaSearch,
   FaCalendarCheck,
   FaComments,
   FaMoneyCheck,
-  FaStar,
   FaUserCog,
 } from "react-icons/fa";
 
 export default function Dashboard() {
-  const [name, setName] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
-    const storedName = localStorage.getItem("name");
-    if (storedName) setName(storedName);
+    const fetchProfile = async () => {
+      try {
+        const email = localStorage.getItem("email");
+        const role = localStorage.getItem("role");
+
+        if (!email || !role) {
+          return;
+        }
+
+        const res = await axios.get("http://localhost:5000/api/user/profile", {
+          params: { email, role },
+        });
+
+        const data = res.data;
+
+        if (data.firstName) setFirstName(data.firstName);
+        if (data.lastName) setLastName(data.lastName);
+      } catch (error) {
+        console.error("Failed to fetch profile:", error);
+      }
+    };
+
+    fetchProfile();
   }, []);
 
-  const getInitials = (fullName) => {
-    if (!fullName) return "?";
-    const names = fullName.trim().split(" ");
-    if (names.length === 1) return names[0][0]?.toUpperCase() || "?";
-    return (names[0][0] + names[1][0])?.toUpperCase() || "?";
+  const getInitials = () => {
+    if (!firstName && !lastName) return "?";
+    const f = firstName?.trim()[0] || "";
+    const l = lastName?.trim()[0] || "";
+    return (f + l).toUpperCase();
   };
 
   const shortcutSections = [
@@ -52,11 +74,7 @@ export default function Dashboard() {
       path: "/tenant/payments",
       icon: <FaMoneyCheck className="text-xl text-purple-500" />,
     },
-    {
-      title: "Reviews",
-      path: "/tenant/reviews",
-      icon: <FaStar className="text-xl text-yellow-500" />,
-    },
+
     {
       title: "Profile Settings",
       path: "/tenant/profile",
@@ -66,13 +84,12 @@ export default function Dashboard() {
 
   return (
     <div className="p-4 bg-[#F9FAFB] min-h-screen">
-      {/* User Greeting */}
       <div className="flex items-center gap-3 mb-6">
         <div className="w-10 h-10 rounded-full bg-sky-500 text-white flex items-center justify-center text-sm font-bold">
-          {getInitials(name)}
+          {getInitials()}
         </div>
         <div className="text-lg font-medium text-gray-800">
-          {name ? `Hi, ${name}` : "Hi there"}
+          {firstName ? `Hi, ${firstName} ${lastName}` : "Hi there"}
         </div>
       </div>
 

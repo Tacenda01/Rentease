@@ -6,7 +6,6 @@ import MyBookings from './MyBookings';
 import SavedProperties from './SavedProperties';
 import Messages from './Messages';
 import Payments from './Payments';
-import Reviews from './Reviews';
 import ProfileSettings from './ProfileSettings';
 import Logout from './Logout';
 import NotFound from '../../notfound';
@@ -24,7 +23,6 @@ export default function TenantRoutes() {
           <Route path="saved" element={<SavedProperties />} />
           <Route path="messages" element={<Messages />} />
           <Route path="payments" element={<Payments />} />
-          <Route path="reviews" element={<Reviews />} />
           <Route path="profile" element={<ProfileSettings />} />
         </Route>
       </Route>

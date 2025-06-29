@@ -7,29 +7,46 @@ import { Link, useNavigate } from 'react-router-dom';
 export default function Register() {
     const navigate = useNavigate();
     const [role, setRole] = useState('tenant');
-    const [formData, setFormData] = useState({ name: '', email: '', password: '' });
+    const [formData, setFormData] = useState({
+        firstName: '',
+        lastName: '',
+        email: '',
+        password: '',
+    });
 
-    const handleChange = e => setFormData({ ...formData, [e.target.name]: e.target.value });
+    const handleChange = e =>
+        setFormData({ ...formData, [e.target.name]: e.target.value });
 
     const handleSubmit = async e => {
         e.preventDefault();
 
-        if (formData.name && formData.email.includes('@') && formData.password.length >= 4) {
+        const { firstName, lastName, email, password } = formData;
+
+        if (firstName && lastName && email.includes('@') && password.length >= 4) {
             try {
                 const res = await fetch('http://localhost:5000/api/auth/register', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ ...formData, role }),
+                    body: JSON.stringify({
+                        firstName,
+                        lastName,
+                        email,
+                        password,
+                        role,
+                    }),
                 });
 
                 const data = await res.json();
 
                 if (res.ok) {
                     toast.success(data.message || 'Registered successfully!');
-                    setTimeout(() => {
-                        navigate('/login');
-                    }, 2000);
-                    setFormData({ name: '', email: '', password: '' });
+                    setTimeout(() => navigate('/login'), 2000);
+                    setFormData({
+                        firstName: '',
+                        lastName: '',
+                        email: '',
+                        password: '',
+                    });
                 } else {
                     toast.error(data.error || 'Registration failed.');
                 }
@@ -40,8 +57,6 @@ export default function Register() {
             toast.error('Please fill all fields correctly.');
         }
     };
-
-
 
     return (
         <div className="min-h-[35rem] flex justify-center items-center px-4 pt-32">
@@ -57,8 +72,22 @@ export default function Register() {
                         <FaUser className="absolute left-3 top-3.5 text-gray-400" />
                         <input
                             type="text"
-                            name="name"
-                            placeholder="Full Name"
+                            name="firstName"
+                            placeholder="First Name"
+                            value={formData.firstName}
+                            onChange={handleChange}
+                            required
+                            className="pl-10 w-full py-2 bg-white rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-300 focus:outline-none shadow-sm"
+                        />
+                    </div>
+
+                    <div className="relative">
+                        <FaUser className="absolute left-3 top-3.5 text-gray-400" />
+                        <input
+                            type="text"
+                            name="lastName"
+                            placeholder="Last Name"
+                            value={formData.lastName}
                             onChange={handleChange}
                             required
                             className="pl-10 w-full py-2 bg-white rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-300 focus:outline-none shadow-sm"
@@ -71,6 +100,7 @@ export default function Register() {
                             type="email"
                             name="email"
                             placeholder="Email"
+                            value={formData.email}
                             onChange={handleChange}
                             required
                             className="pl-10 w-full py-2 bg-white rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-300 focus:outline-none shadow-sm"
@@ -83,6 +113,7 @@ export default function Register() {
                             type="password"
                             name="password"
                             placeholder="Password"
+                            value={formData.password}
                             onChange={handleChange}
                             required
                             className="pl-10 w-full py-2 bg-white rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-300 focus:outline-none shadow-sm"

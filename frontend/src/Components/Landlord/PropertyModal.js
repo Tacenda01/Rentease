@@ -1,11 +1,15 @@
 import { useState } from "react";
-import {
-  FaTimes, FaChevronLeft, FaChevronRight
-} from "react-icons/fa";
+import { FaTimes, FaChevronLeft, FaChevronRight } from "react-icons/fa";
 
 export default function PropertyModal({ property, onClose }) {
   const [galleryOpen, setGalleryOpen] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
+
+  const images = Array.isArray(property.images)
+    ? property.images
+    : typeof property.images === "string"
+      ? property.images.replace(/[{}"]/g, "").split(",")
+      : [];
 
   const openGallery = (index) => {
     setCurrentIndex(index);
@@ -18,20 +22,20 @@ export default function PropertyModal({ property, onClose }) {
 
   const prevImage = (e) => {
     e.stopPropagation();
-    setCurrentIndex((prev) => (prev === 0 ? property.images.length - 1 : prev - 1));
+    setCurrentIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
   };
 
   const nextImage = (e) => {
     e.stopPropagation();
-    setCurrentIndex((prev) => (prev === property.images.length - 1 ? 0 : prev + 1));
+    setCurrentIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
   };
 
-  const imagesForScroll = [...property.images, ...property.images];
+  const imagesForScroll = [...images, ...images];
 
   return (
     <>
       <div
-        className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4"
+        className="fixed inset-0 z-50 flex items-center justify-center p-4"
         aria-modal="true"
         role="dialog"
       >
@@ -61,32 +65,22 @@ export default function PropertyModal({ property, onClose }) {
                   src={img}
                   alt={`Slide ${idx}`}
                   className="h-24 w-32 object-cover rounded flex-shrink-0 cursor-pointer"
-                  onClick={() => openGallery(idx % property.images.length)}
+                  onClick={() => openGallery(idx % images.length)}
                   draggable={false}
                 />
               ))}
             </div>
           </div>
 
-          <p className="text-gray-700 mb-6 whitespace-pre-line">{property.description}</p>
-
-          <div className="flex flex-col md:flex-row justify-center items-center gap-4">
-            <button className="bg-emerald-500 text-white px-4 py-2 rounded hover:bg-emerald-600">
-              Contact Owner
-            </button>
-            <button className="bg-sky-500 text-white px-4 py-2 rounded hover:bg-sky-600">
-              Book this Property
-            </button>
-            <button className="bg-amber-400 text-white px-4 py-2 rounded hover:bg-amber-500 flex items-center gap-2">
-              Save this Property
-            </button>
-          </div>
+          <p className="text-gray-700 mb-6 whitespace-pre-line">
+            {property.description}
+          </p>
         </div>
       </div>
 
       {galleryOpen && (
         <div
-          className="fixed inset-0 z-[100] bg-black bg-opacity-90 flex items-center justify-center"
+          className="fixed inset-0 z-[100] flex items-center justify-center"
           onClick={closeGallery}
           aria-modal="true"
           role="dialog"
@@ -111,7 +105,7 @@ export default function PropertyModal({ property, onClose }) {
           </button>
 
           <img
-            src={property.images[currentIndex]}
+            src={images[currentIndex]}
             alt={`Slide ${currentIndex}`}
             className="max-h-[90vh] max-w-[90vw] rounded shadow-lg select-none"
             onClick={(e) => e.stopPropagation()}

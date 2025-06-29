@@ -10,7 +10,7 @@ const TenantLayout = () => {
       <Sidebar collapsed={collapsed} setCollapsed={setCollapsed} />
       <main
         className={`flex-1 p-4 transition-all duration-300 
-          ${collapsed ? 'ml-20' : 'ml-64'}`}
+          ${collapsed ? 'md:ml-20' : 'md:ml-64'} ml-0`}
       >
         <Outlet />
       </main>
