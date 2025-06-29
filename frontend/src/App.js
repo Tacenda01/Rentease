@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route, useLocation } from "react-route
 import Navbar from "./Components/Navbar/navbar";
 import Footer from "./Components/Footer/footer";
 import Home from "./Components/Home/home";
+import BrowseProperties from "./Components/Browse/browse";
 import HowItWorksSection from "./Components/HowItWorks/work";
 import Contact from "./Components/Contact/contact";
 import Login from "./Components/Login/login";
@@ -32,6 +33,7 @@ function AppWrapper() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/how-it-works" element={<HowItWorksSection />} />
+          <Route path="/browse" element={<BrowseProperties />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
