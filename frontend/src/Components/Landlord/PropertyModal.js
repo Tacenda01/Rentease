@@ -35,7 +35,7 @@ export default function PropertyModal({ property, onClose }) {
   return (
     <>
       <div
-        className="fixed inset-0 z-50 flex items-center justify-center p-4"
+        className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#F9FAFB]"
         aria-modal="true"
         role="dialog"
       >
@@ -80,7 +80,7 @@ export default function PropertyModal({ property, onClose }) {
 
       {galleryOpen && (
         <div
-          className="fixed inset-0 z-[100] flex items-center justify-center"
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80"
           onClick={closeGallery}
           aria-modal="true"
           role="dialog"

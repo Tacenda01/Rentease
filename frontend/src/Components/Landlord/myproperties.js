@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import axios from "axios";
 import PropertyCard from "./PropertyCard";
 import PropertyModal from "./PropertyModal";
 import AddPropertyForm from "./AddProperty";
@@ -7,48 +8,69 @@ export default function MyProperties() {
   const [properties, setProperties] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [selectedProperty, setSelectedProperty] = useState(null);
+  const [propertyToDelete, setPropertyToDelete] = useState(null);
+  const [showConfirmDelete, setShowConfirmDelete] = useState(false);
 
   const userId = localStorage.getItem("userId");
+  const token = localStorage.getItem("token");
 
   useEffect(() => {
     const fetchProperties = async () => {
       try {
-        const res = await fetch(`http://localhost:5000/api/property/landlord/${userId}`);
-        if (!res.ok) throw new Error("Failed to fetch properties");
-        const data = await res.json();
-        setProperties(data);
+        const res = await axios.get(`http://localhost:5000/api/property/user/${userId}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setProperties(res.data);
       } catch (error) {
         console.error("Failed to fetch properties", error);
       }
     };
 
-    if (userId) {
-      fetchProperties();
-    }
-  }, [userId]);
+    if (userId) fetchProperties();
+  }, [userId, token]);
 
   const handleAddProperty = async (newProperty) => {
     try {
-      const res = await fetch("http://localhost:5000/api/property/add", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+      const res = await axios.post(
+        "http://localhost:5000/api/property/add",
+        {
           ...newProperty,
           userId,
-        }),
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      setProperties((prev) => [...prev, res.data.property]);
+      setShowForm(false);
+    } catch (error) {
+      console.error("Failed to add property", error);
+    }
+  };
+
+  const confirmDeleteProperty = (propertyId) => {
+    setPropertyToDelete(propertyId);
+    setShowConfirmDelete(true);
+  };
+
+  const handleDeleteConfirmed = async () => {
+    try {
+      await axios.delete(`http://localhost:5000/api/property/${propertyToDelete}`, {
+        headers: { Authorization: `Bearer ${token}` },
       });
 
-      const contentType = res.headers.get("content-type");
-      const data = contentType.includes("application/json") ? await res.json() : { message: await res.text() };
-
-      if (res.ok) {
-        setProperties((prev) => [...prev, data.property]);
-        setShowForm(false);
-      } else {
-        console.error("Failed to add property:", data.error || data.message);
-      }
-    } catch (error) {
-      console.error("Error submitting property:", error);
+      setProperties((prev) =>
+        prev.filter((p) => p.property_id !== propertyToDelete)
+      );
+      setShowConfirmDelete(false);
+      setPropertyToDelete(null);
+    } catch (err) {
+      console.error("Failed to delete property:", err?.response?.data || err.message);
+      alert("Error deleting property. Please try again.");
     }
   };
 
@@ -76,9 +98,10 @@ export default function MyProperties() {
           <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {properties.map((property) => (
               <PropertyCard
-                key={property.id}
+                key={property.property_id}
                 property={property}
                 onClick={() => setSelectedProperty(property)}
+                onDelete={() => confirmDeleteProperty(property.property_id)}
               />
             ))}
           </div>
@@ -93,7 +116,7 @@ export default function MyProperties() {
       )}
 
       {showForm && (
-        <div className="fixed inset-0 flex items-center justify-center z-50 overflow-auto bg-transparent">
+        <div className="fixed inset-0 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg shadow-lg w-full max-w-2xl max-h-[90vh] mx-auto p-6 relative overflow-y-auto">
             <button
               onClick={() => setShowForm(false)}
@@ -107,6 +130,36 @@ export default function MyProperties() {
               onSubmit={handleAddProperty}
               onClose={() => setShowForm(false)}
             />
+          </div>
+        </div>
+      )}
+
+      {showConfirmDelete && (
+        <div className="fixed inset-0 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md text-center shadow-lg">
+            <h2 className="text-xl font-semibold mb-4 text-gray-800">
+              Confirm Delete
+            </h2>
+            <p className="text-gray-600 mb-6">
+              Are you sure you want to delete this property? This action cannot be undone.
+            </p>
+            <div className="flex justify-center gap-4">
+              <button
+                onClick={() => {
+                  setShowConfirmDelete(false);
+                  setPropertyToDelete(null);
+                }}
+                className="px-4 py-2 rounded border border-gray-300 text-gray-600 hover:bg-gray-100"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDeleteConfirmed}
+                className="px-4 py-2 rounded bg-red-600 text-white hover:bg-red-700"
+              >
+                Delete
+              </button>
+            </div>
           </div>
         </div>
       )}

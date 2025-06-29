@@ -35,20 +35,20 @@ async function initializeTables() {
     `);
 
     await pool.query(`
-    CREATE TABLE IF NOT EXISTS properties (
-        id SERIAL PRIMARY KEY,
-        user_id UUID REFERENCES landlords(id) ON DELETE CASCADE,
-        title TEXT NOT NULL,
-        description TEXT,
-        price NUMERIC NOT NULL,
-        location TEXT NOT NULL,
-        image_urls TEXT[],
-        bedrooms INTEGER,
-        bathrooms INTEGER,
-        area INTEGER,
-        property_type TEXT,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    );
+        CREATE TABLE IF NOT EXISTS properties (
+            property_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+            user_id UUID REFERENCES landlords(id) ON DELETE CASCADE,
+            title TEXT NOT NULL,
+            description TEXT,
+            price NUMERIC NOT NULL,
+            location TEXT NOT NULL,
+            image_urls TEXT[],
+            bedrooms INTEGER,
+            bathrooms INTEGER,
+            area INTEGER,
+            property_type TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
 `);
 
 
