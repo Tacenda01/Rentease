@@ -37,7 +37,7 @@ async function initializeTables() {
     await pool.query(`
     CREATE TABLE IF NOT EXISTS properties (
         id SERIAL PRIMARY KEY,
-        landlord_id UUID REFERENCES landlords(id) ON DELETE CASCADE,
+        user_id UUID REFERENCES landlords(id) ON DELETE CASCADE,
         title TEXT NOT NULL,
         description TEXT,
         price NUMERIC NOT NULL,

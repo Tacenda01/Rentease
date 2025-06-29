@@ -1,18 +1,32 @@
-import { useState } from 'react';
-import dummyProperties from './DummyPropertyList';
+import { useState, useEffect } from 'react';
+import axios from 'axios';
 import PropertyCard from './PropertyCard';
 import PropertyModal from './PropertyModal';
 
-const uniqueCities = [...new Set(dummyProperties.map(p => p.city))];
-
 export default function SearchProperties() {
+  const [properties, setProperties] = useState([]);
   const [selectedProperty, setSelectedProperty] = useState(null);
   const [searchCity, setSearchCity] = useState('');
   const [selectedCity, setSelectedCity] = useState('');
+  const [uniqueCities, setUniqueCities] = useState([]);
+
+  useEffect(() => {
+    const fetchProperties = async () => {
+      try {
+        const res = await axios.get('http://localhost:5000/api/property');
+        setProperties(res.data);
+        const cities = [...new Set(res.data.map(p => p.city))];
+        setUniqueCities(cities);
+      } catch (error) {
+        console.error('Failed to fetch properties', error);
+      }
+    };
+    fetchProperties();
+  }, []);
 
   const filteredProperties = selectedCity
-    ? dummyProperties.filter(p => p.city.toLowerCase() === selectedCity.toLowerCase())
-    : dummyProperties;
+    ? properties.filter(p => p.city.toLowerCase() === selectedCity.toLowerCase())
+    : properties;
 
   const matchedCities = uniqueCities.filter(city =>
     city.toLowerCase().startsWith(searchCity.toLowerCase()) && searchCity
@@ -20,10 +34,8 @@ export default function SearchProperties() {
 
   return (
     <div className="p-4 bg-[#F9FAFB] min-h-screen">
-      {/* 🔍 Title */}
       <h1 className="text-2xl font-semibold text-[#1F2937] mb-6 text-center">Search Properties</h1>
 
-      {/* 🔍 Search Box Centered */}
       <div className="flex justify-center mb-8 relative z-20">
         <div className="relative w-full max-w-md">
           <input
@@ -33,8 +45,6 @@ export default function SearchProperties() {
             placeholder="Enter city name..."
             className="w-full px-4 py-2 border border-slate-300 rounded focus:outline-none focus:ring-2 focus:ring-sky-400"
           />
-
-          {/* City Dropdown */}
           {matchedCities.length > 0 && (
             <ul className="absolute top-full left-0 w-full border border-slate-300 rounded shadow bg-white mt-1 max-h-60 overflow-y-auto">
               {matchedCities.map((city, idx) => (
@@ -53,7 +63,6 @@ export default function SearchProperties() {
           )}
         </div>
 
-        {/* 🧹 Clear Filter Button */}
         {selectedCity && (
           <button
             onClick={() => setSelectedCity('')}
@@ -64,7 +73,6 @@ export default function SearchProperties() {
         )}
       </div>
 
-      {/* 🏘️ Property Grid */}
       <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {filteredProperties.map((property) => (
           <PropertyCard
@@ -81,7 +89,6 @@ export default function SearchProperties() {
         )}
       </div>
 
-      {/* 📌 Popup Modal */}
       {selectedProperty && (
         <PropertyModal
           property={selectedProperty}

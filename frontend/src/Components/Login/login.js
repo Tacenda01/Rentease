@@ -34,7 +34,7 @@ export default function Login() {
                 localStorage.setItem('lastName', data.lastName);
 
                 if (role === 'landlord') {
-                    localStorage.setItem('landlordId', data.id);
+                    localStorage.setItem('userId', data.id);
                     navigate('/landlord/dashboard');
                 } else if (role === 'tenant') {
                     navigate('/tenant/dashboard');
