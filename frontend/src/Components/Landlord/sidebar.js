@@ -14,7 +14,7 @@ import { toast } from 'react-toastify';
 const navItems = [
   { label: 'Dashboard', to: '/landlord/dashboard', icon: <MdDashboard /> },
   { label: 'My Properties', to: '/landlord/properties', icon: <FaHome /> },
-  { label: 'Booking Requests', to: '/landlord/bookings', icon: <FaCalendarAlt /> },
+  { label: 'Bookings', to: '/landlord/bookings', icon: <FaCalendarAlt /> },
   { label: 'Messages', to: '/landlord/messages', icon: <FaComments /> },
   { label: 'Earnings & Payouts', to: '/landlord/earnings', icon: <FaMoneyCheckAlt /> },
   { label: 'Profile Settings', to: '/landlord/profile', icon: <FaUserCog /> },
@@ -84,7 +84,6 @@ function Sidebar({ collapsed, setCollapsed }) {
 
   return (
     <>
-      {/* Desktop Sidebar */}
       <div
         className={`fixed z-[100] top-0 left-0 h-full bg-white border-r border-slate-200 transition-all duration-300 ease-in-out
         ${collapsed ? 'w-20' : 'w-64'} hidden md:flex flex-col`}
@@ -92,7 +91,6 @@ function Sidebar({ collapsed, setCollapsed }) {
         <SidebarContent />
       </div>
 
-      {/* Mobile toggle button */}
       <button
         className="md:hidden fixed top-4 left-4 z-[150] bg-white p-2 rounded-md shadow-md border border-gray-200"
         onClick={() => setMobileOpen(true)}
@@ -100,7 +98,6 @@ function Sidebar({ collapsed, setCollapsed }) {
         <FiMenu className="text-2xl text-gray-700" />
       </button>
 
-      {/* Mobile Sidebar */}
       {mobileOpen && (
         <div className="fixed inset-0 z-[150] flex">
           <div className="w-64 bg-white h-full shadow-lg flex flex-col">

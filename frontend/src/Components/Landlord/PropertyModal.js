@@ -35,11 +35,11 @@ export default function PropertyModal({ property, onClose }) {
   return (
     <>
       <div
-        className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#F9FAFB]"
+        className="fixed inset-0 z-[100] flex items-center justify-center bg-black bg-opacity-50 p-4"
         aria-modal="true"
         role="dialog"
       >
-        <div className="bg-white max-w-2xl w-full rounded-xl shadow-lg relative overflow-y-auto max-h-[90vh] p-6">
+        <div className="bg-white max-w-2xl w-full rounded-xl shadow-lg relative z-[101] overflow-y-auto max-h-[90vh] p-6">
           <button
             onClick={onClose}
             className="absolute top-4 right-4 text-gray-600 hover:text-red-500"
@@ -80,13 +80,13 @@ export default function PropertyModal({ property, onClose }) {
 
       {galleryOpen && (
         <div
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80"
+          className="fixed inset-0 z-[110] flex items-center justify-center bg-black/80"
           onClick={closeGallery}
           aria-modal="true"
           role="dialog"
         >
           <button
-            className="absolute top-5 right-5 text-white text-3xl z-110"
+            className="absolute top-5 right-5 text-white text-3xl z-[111]"
             onClick={(e) => {
               e.stopPropagation();
               closeGallery();
@@ -97,7 +97,7 @@ export default function PropertyModal({ property, onClose }) {
           </button>
 
           <button
-            className="absolute left-5 text-white text-4xl p-2 hover:text-gray-300 z-110"
+            className="absolute left-5 text-white text-4xl p-2 hover:text-gray-300 z-[111]"
             onClick={prevImage}
             aria-label="Previous image"
           >
@@ -112,7 +112,7 @@ export default function PropertyModal({ property, onClose }) {
           />
 
           <button
-            className="absolute right-5 text-white text-4xl p-2 hover:text-gray-300 z-110"
+            className="absolute right-5 text-white text-4xl p-2 hover:text-gray-300 z-[111]"
             onClick={nextImage}
             aria-label="Next image"
           >

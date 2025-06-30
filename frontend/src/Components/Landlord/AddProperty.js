@@ -86,15 +86,15 @@ export default function AddPropertyForm({ onSubmit, onClose }) {
             setUploading(true);
             const imageUrls = await uploadToCloudinary(formData.images);
             const role = localStorage.getItem("role");
-            const landlordId = localStorage.getItem("userId");
+            const userId = localStorage.getItem("userId");
 
-            if (!landlordId || role !== "landlord") {
+            if (!userId || role !== "landlord") {
                 alert("Only landlords can add properties.");
                 return;
             }
 
             onSubmit({
-                landlordId,
+                userId,
                 title: formData.title,
                 description: formData.description,
                 city: formData.city,

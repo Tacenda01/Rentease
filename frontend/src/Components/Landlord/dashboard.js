@@ -65,7 +65,7 @@ export default function Dashboard() {
       icon: <FaSearch className="text-xl text-sky-500" />,
     },
     {
-      title: "Booking Requests",
+      title: "Bookings",
       path: "/landlord/bookings",
       icon: <FaCalendarCheck className="text-xl text-emerald-500" />,
     },
@@ -88,7 +88,6 @@ export default function Dashboard() {
 
   return (
     <div className="p-6 bg-[#F9FAFB] min-h-screen">
-      {/* User Greeting */}
       <div className="flex items-center mb-4">
         <div className="w-10 h-10 rounded-full bg-blue-500 text-white flex items-center justify-center text-sm font-bold">
           {getInitials()}
@@ -100,7 +99,6 @@ export default function Dashboard() {
 
       <h1 className="text-2xl font-semibold text-gray-800 mb-6">Dashboard</h1>
 
-      {/* Quick Access Cards */}
       <h2 className="text-xl font-semibold text-gray-800 mb-3">Quick Access</h2>
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {shortcutSections.map(({ title, path, icon }) => (
@@ -114,7 +112,6 @@ export default function Dashboard() {
           </div>
         ))}
       </div>
-      {/* Additional dashboard sections (stats, alerts, charts, etc.) can be added below */}
     </div>
   );
 }
