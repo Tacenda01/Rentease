@@ -3,7 +3,6 @@ import TenantLayout from './TenantLayout';
 import Dashboard from './Dashboard';
 import SearchProperties from './SearchProperties';
 import MyBookings from './MyBookings';
-import SavedProperties from './SavedProperties';
 import Messages from './Messages';
 import Payments from './Payments';
 import ProfileSettings from './ProfileSettings';
@@ -20,7 +19,6 @@ export default function TenantRoutes() {
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="search" element={<SearchProperties />} />
           <Route path="bookings" element={<MyBookings />} />
-          <Route path="saved" element={<SavedProperties />} />
           <Route path="messages" element={<Messages />} />
           <Route path="payments" element={<Payments />} />
           <Route path="profile" element={<ProfileSettings />} />

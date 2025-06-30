@@ -77,9 +77,6 @@ export default function PropertyModal({ property, onClose }) {
             <button className="bg-sky-500 text-white px-4 py-2 rounded hover:bg-sky-600">
               Book this Property
             </button>
-            <button className="bg-amber-400 text-white px-4 py-2 rounded hover:bg-amber-500 flex items-center gap-2">
-              Save this Property
-            </button>
           </div>
         </div>
       </div>

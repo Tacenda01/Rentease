@@ -4,7 +4,6 @@ import { MdDashboard } from 'react-icons/md';
 import {
   FaSearch,
   FaCalendarCheck,
-  FaHeart,
   FaComments,
   FaMoneyCheck,
   FaUserCog,
@@ -16,7 +15,6 @@ const navItems = [
   { label: 'Dashboard', path: '/tenant/dashboard', icon: <MdDashboard /> },
   { label: 'Search Properties', path: '/tenant/search', icon: <FaSearch /> },
   { label: 'My Bookings', path: '/tenant/bookings', icon: <FaCalendarCheck /> },
-  { label: 'Saved Properties', path: '/tenant/saved', icon: <FaHeart /> },
   { label: 'Messages', path: '/tenant/messages', icon: <FaComments /> },
   { label: 'Payments', path: '/tenant/payments', icon: <FaMoneyCheck /> },
   { label: 'Profile Settings', path: '/tenant/profile', icon: <FaUserCog /> },
@@ -86,7 +84,6 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
 
   return (
     <>
-      {/* Mobile toggle button */}
       <div className="md:hidden fixed top-4 left-4 z-50">
         <button
           onClick={() => setMobileOpen(true)}
@@ -96,7 +93,6 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
         </button>
       </div>
 
-      {/* Desktop Sidebar */}
       <aside
         className={`fixed top-0 left-0 z-40 h-full bg-white border-r border-slate-200 transition-all duration-300 ease-in-out
           ${collapsed ? 'w-20' : 'w-64'} hidden md:flex flex-col`}
@@ -104,7 +100,6 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
         <SidebarContent isMobile={false} />
       </aside>
 
-      {/* Mobile Sidebar */}
       {mobileOpen && (
         <div className="fixed inset-0 z-50 flex">
           <div className="w-64 bg-white h-full shadow-lg flex flex-col">
