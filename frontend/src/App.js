@@ -1,4 +1,9 @@
-import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  useLocation,
+} from "react-router-dom";
 import Navbar from "./Components/Navbar/navbar";
 import Footer from "./Components/Footer/footer";
 import Home from "./Components/Home/home";
@@ -14,6 +19,7 @@ import TenantRoutes from "./Components/Tenant/tenant";
 import NotFound from "./notfound";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import Users from "./Components/Admin/Users"; // ✅ Check file name is "User.js" but component is "Users"
 
 function AppWrapper() {
   const location = useLocation();
@@ -41,9 +47,12 @@ function AppWrapper() {
           <Route path="/tenant/*" element={<TenantRoutes />} />
           <Route path="/landlord/*" element={<LandlordRoutes />} />
           <Route path="/admin/*" element={<AdminRoutes />} />
+
+          {/* ✅ Corrected line here */}
+          <Route path="/admin/users" element={<Users />} />
+
           <Route path="*" element={<NotFound />} />
         </Routes>
-
       </main>
       {!shouldHideLayout && <Footer />}
 
@@ -61,6 +70,7 @@ function AppWrapper() {
     </div>
   );
 }
+
 export default function App() {
   return (
     <Router>
