@@ -154,10 +154,6 @@ router.patch("/block", async (req, res) => {
                 [blocked, email]
             );
 
-            await pool.query(
-                "UPDATE properties SET is_active = $1 WHERE user_id IN (SELECT user_id FROM landlords WHERE email = $2)",
-                [!blocked, email]
-            );
         } else {
             return res.status(400).json({ message: "Invalid role" });
         }
@@ -169,6 +165,60 @@ router.patch("/block", async (req, res) => {
     }
 });
 
+router.get('/user-stats', async (req, res) => {
+    try {
+        const landlordRes = await pool.query('SELECT COUNT(*) FROM landlords WHERE blocked = false');
+        const tenantRes = await pool.query('SELECT COUNT(*) FROM tenants WHERE blocked = false');
 
+        res.json({
+            landlords: parseInt(landlordRes.rows[0].count, 10),
+            tenants: parseInt(tenantRes.rows[0].count, 10),
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Failed to fetch user stats' });
+    }
+});
+
+router.get('/property-stats', async (req, res) => {
+    try {
+        const totalRes = await pool.query(`
+            SELECT COUNT(*) 
+            FROM properties p
+            JOIN landlords l ON p.user_id = l.id
+            WHERE l.blocked = false 
+        `);
+
+        const typeRes = await pool.query(`
+            SELECT p.property_type, COUNT(*) 
+            FROM properties p
+            JOIN landlords l ON p.user_id = l.id
+            WHERE l.blocked = false 
+            GROUP BY p.property_type
+        `);
+
+        const types = {
+            apartment: 0,
+            house: 0,
+            studio: 0,
+            villa: 0
+        };
+
+        typeRes.rows.forEach(row => {
+            const key = row.property_type?.toLowerCase();
+            if (types.hasOwnProperty(key)) {
+                types[key] = parseInt(row.count, 10);
+            }
+        });
+
+        res.json({
+            total: parseInt(totalRes.rows[0].count, 10),
+            types
+        });
+    } catch (err) {
+        console.error('Error fetching property stats:', err);
+        res.status(500).json({ error: 'Failed to fetch property stats' });
+    }
+});
 
 module.exports = router;
