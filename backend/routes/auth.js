@@ -61,6 +61,10 @@ router.post('/login', async (req, res) => {
         const user = await findUserByEmail(email, role);
         if (!user) return res.status(400).json({ error: 'User not found' });
 
+        if (user.blocked === true) {
+            return res.status(403).json({ error: 'Your account has been blocked. Please contact support.' });
+        }
+
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) return res.status(400).json({ error: 'Incorrect credentials' });
 
