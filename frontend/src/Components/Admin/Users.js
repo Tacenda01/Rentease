@@ -88,8 +88,8 @@ export default function Users() {
                                                 toggleBlock(tenant.email, "tenant", tenant.blocked)
                                             }
                                             className={`px-3 py-1 text-xs font-medium rounded ${tenant.blocked
-                                                    ? "bg-green-500 text-white"
-                                                    : "bg-red-500 text-white"
+                                                ? "bg-green-500 text-white"
+                                                : "bg-red-500 text-white"
                                                 }`}
                                         >
                                             {tenant.blocked ? "Unblock" : "Block"}
@@ -143,8 +143,8 @@ export default function Users() {
                                                 )
                                             }
                                             className={`px-3 py-1 text-xs font-medium rounded ${landlord.blocked
-                                                    ? "bg-green-500 text-white"
-                                                    : "bg-red-500 text-white"
+                                                ? "bg-green-500 text-white"
+                                                : "bg-red-500 text-white"
                                                 }`}
                                         >
                                             {landlord.blocked ? "Unblock" : "Block"}

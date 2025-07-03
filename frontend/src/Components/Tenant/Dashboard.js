@@ -93,10 +93,8 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Section Title */}
-      <h1 className="text-2xl font-semibold text-[#1F2937] mb-4">Dashboard</h1>
+      =      <h1 className="text-2xl font-semibold text-[#1F2937] mb-4">Dashboard</h1>
 
-      {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         <div className="bg-white p-4 rounded-2xl shadow border border-[#D1D5DB]">
           <h2 className="text-lg font-medium text-[#1F2937]">Active Bookings</h2>
@@ -115,7 +113,6 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Shortcut Cards to Other Sections */}
       <h2 className="text-xl font-semibold text-[#1F2937] mb-3">Quick Access</h2>
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {shortcutSections.map(({ title, path, icon }) => (

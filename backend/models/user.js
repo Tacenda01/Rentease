@@ -4,26 +4,30 @@ async function initializeTables() {
     await pool.query(`CREATE EXTENSION IF NOT EXISTS "pgcrypto";`);
 
     await pool.query(`
-        CREATE TABLE IF NOT EXISTS tenants (
-            id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-            first_name TEXT NOT NULL,
-            last_name TEXT NOT NULL,
-            email TEXT UNIQUE NOT NULL,
-            password TEXT NOT NULL,
-            phone TEXT
-        );
-    `);
+    CREATE TABLE IF NOT EXISTS tenants (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        first_name TEXT NOT NULL,
+        last_name TEXT NOT NULL,
+        email TEXT UNIQUE NOT NULL,
+        password TEXT NOT NULL,
+        phone TEXT,
+        blocked BOOLEAN DEFAULT FALSE
+    );
+`);
+
 
     await pool.query(`
-        CREATE TABLE IF NOT EXISTS landlords (
-            id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-            first_name TEXT NOT NULL,
-            last_name TEXT NOT NULL,
-            email TEXT UNIQUE NOT NULL,
-            password TEXT NOT NULL,
-            phone TEXT
-        );
-    `);
+    CREATE TABLE IF NOT EXISTS landlords (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        first_name TEXT NOT NULL,
+        last_name TEXT NOT NULL,
+        email TEXT UNIQUE NOT NULL,
+        password TEXT NOT NULL,
+        phone TEXT,
+        blocked BOOLEAN DEFAULT FALSE
+    );
+`);
+
 
     await pool.query(`
         CREATE TABLE IF NOT EXISTS admins (
@@ -35,22 +39,32 @@ async function initializeTables() {
     `);
 
     await pool.query(`
-        CREATE TABLE IF NOT EXISTS properties (
-            property_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-            user_id UUID REFERENCES landlords(id) ON DELETE CASCADE,
-            title TEXT NOT NULL,
-            description TEXT,
-            price NUMERIC NOT NULL,
-            location TEXT NOT NULL,
-            image_urls TEXT[],
-            bedrooms INTEGER,
-            bathrooms INTEGER,
-            area INTEGER,
-            property_type TEXT,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        );
+    CREATE TABLE IF NOT EXISTS properties (
+        property_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id UUID REFERENCES landlords(id) ON DELETE CASCADE,
+        title TEXT NOT NULL,
+        description TEXT,
+        price NUMERIC NOT NULL,
+        location TEXT NOT NULL,
+        image_urls TEXT[],
+        bedrooms INTEGER,
+        bathrooms INTEGER,
+        area INTEGER,
+        property_type TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
 `);
 
+    await pool.query(`
+    CREATE TABLE IF NOT EXISTS contact_messages (
+    id SERIAL PRIMARY KEY,
+    name TEXT NOT NULL,
+    email TEXT NOT NULL,
+    message TEXT NOT NULL,
+    is_read BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+`);
 
     console.log("All tables initialized with UUID support.");
 }
