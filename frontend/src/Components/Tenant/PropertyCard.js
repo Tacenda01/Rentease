@@ -16,6 +16,7 @@ export default function PropertyCard({ property, onClick }) {
       </div>
 
       <div className="absolute inset-0 bg-white/90 backdrop-blur-md opacity-0 group-hover:opacity-100 transition-all duration-300 p-4 flex flex-col justify-center">
+        <h2 className="text-lg font-semibold text-sky-600">{property.property_type}</h2>
         <h2 className="text-lg font-semibold text-sky-600">{property.title}</h2>
         <p className="text-sm text-gray-600">{property.city}</p>
         <p className="text-md font-bold text-emerald-600 mt-2">₹{property.price}/month</p>
