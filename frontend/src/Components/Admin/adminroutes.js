@@ -5,9 +5,7 @@ import Users from './Users';
 import Properties from './Properties';
 import BookingRequests from '../Landlord/bookingrequests';
 import Transactions from './Transactions';
-import Reviews from './Reviews';
 import Notifications from './Notifications';
-import Settings from './Settings';
 
 function AdminRoutes() {
     const isAdmin = localStorage.getItem('adminRole') === 'admin';
@@ -24,9 +22,7 @@ function AdminRoutes() {
                 <Route path="properties" element={<Properties />} />
                 <Route path="bookings" element={<BookingRequests />} />
                 <Route path="transactions" element={<Transactions />} />
-                <Route path="reviews" element={<Reviews />} />
                 <Route path="notifications" element={<Notifications />} />
-                <Route path="settings" element={<Settings />} />
                 <Route path="*" element={<Navigate to="dashboard" />} />
             </Routes>
         </AdminLayout>

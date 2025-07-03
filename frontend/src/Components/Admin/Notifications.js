@@ -26,7 +26,7 @@ export default function Notifications() {
                 is_read: !is_read,
             });
             toast.success(`Marked as ${!is_read ? "Read" : "Unread"}`);
-            fetchMessages(); // Refresh
+            fetchMessages();
         } catch (err) {
             console.error(err);
             toast.error("Failed to update message status.");
