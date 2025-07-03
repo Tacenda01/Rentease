@@ -61,7 +61,6 @@ router.post('/add', async (req, res) => {
             property
         });
 
-
     } catch (error) {
         console.error('Error adding property:', error);
         res.status(500).json({ error: 'Failed to add property' });
@@ -93,7 +92,13 @@ router.get('/user/:id', async (req, res) => {
 
 router.get('/', async (req, res) => {
     try {
-        const result = await pool.query('SELECT * FROM properties ORDER BY created_at DESC');
+        const result = await pool.query(`
+            SELECT p.* FROM properties p
+            JOIN landlords l ON p.user_id = l.id
+            WHERE l.blocked = false
+            ORDER BY p.created_at DESC
+        `);
+
         const properties = result.rows.map(row => ({
             ...row,
             images: Array.isArray(row.image_urls)
@@ -101,6 +106,7 @@ router.get('/', async (req, res) => {
                 : row.image_urls?.replace(/^{|}$/g, '').split(',').map(url => url.trim()) || [],
             city: row.location?.split(',')[0] || ''
         }));
+
         res.json(properties);
     } catch (error) {
         console.error('Error fetching all properties:', error);
@@ -131,6 +137,5 @@ router.delete('/:id', async (req, res) => {
         res.status(500).json({ error: 'Internal server error' });
     }
 });
-
 
 module.exports = router;

@@ -6,9 +6,7 @@ import {
     FaBuilding,
     FaClipboardList,
     FaMoneyBill,
-    FaStarHalfAlt,
     FaBell,
-    FaCogs,
 } from 'react-icons/fa';
 import { FiLogOut, FiMenu, FiX } from 'react-icons/fi';
 import { toast } from 'react-toastify';
@@ -19,9 +17,7 @@ const adminNavItems = [
     { label: 'Properties', path: '/admin/properties', icon: <FaBuilding /> },
     { label: 'Bookings', path: '/admin/bookings', icon: <FaClipboardList /> },
     { label: 'Transactions', path: '/admin/transactions', icon: <FaMoneyBill /> },
-    { label: 'Reviews', path: '/admin/reviews', icon: <FaStarHalfAlt /> },
     { label: 'Notifications', path: '/admin/notifications', icon: <FaBell /> },
-    { label: 'Settings', path: '/admin/settings', icon: <FaCogs /> },
 ];
 
 const AdminSidebar = ({ collapsed, setCollapsed }) => {
@@ -89,7 +85,6 @@ const AdminSidebar = ({ collapsed, setCollapsed }) => {
 
     return (
         <>
-            {/* Mobile Toggle Button */}
             <div className="md:hidden fixed top-4 left-4 z-50">
                 <button
                     onClick={() => setMobileOpen(true)}
@@ -99,7 +94,6 @@ const AdminSidebar = ({ collapsed, setCollapsed }) => {
                 </button>
             </div>
 
-            {/* Desktop Sidebar */}
             <aside
                 className={`fixed top-0 left-0 z-40 h-full bg-white border-r border-slate-200 transition-all duration-300 ease-in-out
           ${collapsed ? 'w-20' : 'w-64'} hidden md:flex flex-col`}
@@ -107,7 +101,6 @@ const AdminSidebar = ({ collapsed, setCollapsed }) => {
                 <SidebarContent isMobile={false} />
             </aside>
 
-            {/* Mobile Sidebar */}
             {mobileOpen && (
                 <div className="fixed inset-0 z-50 flex">
                     <div className="w-64 bg-white h-full shadow-lg flex flex-col">

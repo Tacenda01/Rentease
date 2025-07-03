@@ -10,6 +10,7 @@ const {
     deleteTenantAccount,
     deleteLandlordAccount
 } = require('../models/user');
+const pool = require('../db');
 
 const router = express.Router();
 
@@ -93,7 +94,6 @@ router.put('/password', async (req, res) => {
     }
 });
 
-// DELETE ACCOUNT
 router.delete('/account', async (req, res) => {
     const { email, role } = req.body;
 
@@ -114,5 +114,61 @@ router.delete('/account', async (req, res) => {
         res.status(500).json({ error: 'Account deletion failed' });
     }
 });
+
+router.get('/tenants', async (req, res) => {
+    try {
+        const result = await pool.query('SELECT * FROM tenants');
+        res.json(result.rows);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server error');
+    }
+});
+
+router.get('/landlords', async (req, res) => {
+    try {
+        const result = await pool.query('SELECT * FROM landlords');
+        res.json(result.rows);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server error');
+    }
+});
+
+router.patch("/block", async (req, res) => {
+    const { email, role, blocked } = req.body;
+
+    if (!email || !role || typeof blocked !== "boolean") {
+        return res.status(400).json({ message: "Missing or invalid fields" });
+    }
+
+    try {
+        if (role === "tenant") {
+            await pool.query(
+                "UPDATE tenants SET blocked = $1 WHERE email = $2",
+                [blocked, email]
+            );
+        } else if (role === "landlord") {
+            await pool.query(
+                "UPDATE landlords SET blocked = $1 WHERE email = $2",
+                [blocked, email]
+            );
+
+            await pool.query(
+                "UPDATE properties SET is_active = $1 WHERE user_id IN (SELECT user_id FROM landlords WHERE email = $2)",
+                [!blocked, email]
+            );
+        } else {
+            return res.status(400).json({ message: "Invalid role" });
+        }
+
+        res.status(200).json({ message: `User ${blocked ? "blocked" : "unblocked"} successfully` });
+    } catch (err) {
+        console.error("Error blocking user:", err);
+        res.status(500).json({ message: "Server error" });
+    }
+});
+
+
 
 module.exports = router;
