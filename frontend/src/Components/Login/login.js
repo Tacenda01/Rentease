@@ -38,9 +38,9 @@ export default function Login() {
                 localStorage.setItem('lastName', data.lastName);
 
                 if (role === 'landlord') {
-                    navigate('/landlord/dashboard');
+                    navigate('/landlord/properties');
                 } else {
-                    navigate('/tenant/dashboard');
+                    navigate('/tenant/search');
                 }
             } else {
                 toast.error(data.error || 'Invalid credentials');

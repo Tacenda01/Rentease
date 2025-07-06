@@ -5,6 +5,7 @@ import "react-toastify/dist/ReactToastify.css";
 
 const Contact = () => {
   const [form, setForm] = useState({ name: "", email: "", message: "" });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -12,14 +13,32 @@ const Contact = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (isSubmitting) return;
+
+    setIsSubmitting(true);
 
     try {
-      await axios.post("http://localhost:5000/api/contact", form);
-      toast.success("Message sent successfully!", { position: "top-right" });
+      toast.dismiss("contact-success");
+      toast.dismiss("contact-error");
+
+      await axios.post("http://localhost:5000/api/notification", form);
+
+      toast.success("Message sent successfully!", {
+        position: "top-right",
+        toastId: "contact-success",
+        autoClose: 3000,
+      });
+
       setForm({ name: "", email: "", message: "" });
     } catch (err) {
       console.error(err);
-      toast.error("Failed to send message. Try again later.", { position: "top-right" });
+      toast.error("Failed to send message. Try again later.", {
+        position: "top-right",
+        toastId: "contact-error",
+        autoClose: 3000,
+      });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -85,9 +104,13 @@ const Contact = () => {
           <div className="flex justify-end">
             <button
               type="submit"
-              className="bg-sky-500 hover:bg-amber-400 text-white font-semibold px-6 py-2 rounded-md shadow transition duration-200"
+              disabled={isSubmitting}
+              className={`${isSubmitting
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-sky-500 hover:bg-amber-400"
+                } text-white font-semibold px-6 py-2 rounded-md shadow transition duration-200`}
             >
-              Send Message
+              {isSubmitting ? "Sending..." : "Send Message"}
             </button>
           </div>
         </form>

@@ -1,6 +1,5 @@
 import { Routes, Route } from 'react-router-dom';
 import TenantLayout from './TenantLayout';
-import Dashboard from './Dashboard';
 import SearchProperties from './SearchProperties';
 import MyBookings from './MyBookings';
 import Messages from './Messages';
@@ -16,7 +15,6 @@ export default function TenantRoutes() {
       <Route path="" element={<NotFound />} />
       <Route element={<ProtectedRoute allowedRole="tenant" />}>
         <Route path="/" element={<TenantLayout />}>
-          <Route path="dashboard" element={<Dashboard />} />
           <Route path="search" element={<SearchProperties />} />
           <Route path="bookings" element={<MyBookings />} />
           <Route path="messages" element={<Messages />} />

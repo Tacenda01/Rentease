@@ -2,10 +2,12 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import PropertyCard from './PropertyCard';
 import PropertyModal from './PropertyModal';
+import ChatBox from '../Chatbox/chatbox';
 
 export default function SearchProperties() {
   const [properties, setProperties] = useState([]);
-  const [selectedProperty, setSelectedProperty] = useState(null);
+  const [modalProperty, setModalProperty] = useState(null);
+  const [chatProperty, setChatProperty] = useState(null);
   const [searchCity, setSearchCity] = useState('');
   const [selectedCity, setSelectedCity] = useState('');
   const [uniqueCities, setUniqueCities] = useState([]);
@@ -13,7 +15,7 @@ export default function SearchProperties() {
   useEffect(() => {
     const fetchProperties = async () => {
       try {
-        const res = await axios.get('http://localhost:5000/api/property');
+        const res = await axios.get('http://localhost:5000/api/property/all');
         setProperties(res.data);
         const cities = [...new Set(res.data.map(p => p.city))];
         setUniqueCities(cities);
@@ -47,9 +49,9 @@ export default function SearchProperties() {
           />
           {matchedCities.length > 0 && (
             <ul className="absolute top-full left-0 w-full border border-slate-300 rounded shadow bg-white mt-1 max-h-60 overflow-y-auto">
-              {matchedCities.map((city, idx) => (
+              {matchedCities.map((city) => (
                 <li
-                  key={idx}
+                  key={city}
                   onClick={() => {
                     setSelectedCity(city);
                     setSearchCity('');
@@ -76,9 +78,9 @@ export default function SearchProperties() {
       <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {filteredProperties.map((property) => (
           <PropertyCard
-            key={property.id}
+            key={property.id || property._id}
             property={property}
-            onClick={() => setSelectedProperty(property)}
+            onClick={() => setModalProperty(property)}
           />
         ))}
 
@@ -89,11 +91,26 @@ export default function SearchProperties() {
         )}
       </div>
 
-      {selectedProperty && (
+      {modalProperty && (
         <PropertyModal
-          property={selectedProperty}
-          onClose={() => setSelectedProperty(null)}
+          property={modalProperty}
+          onClose={() => setModalProperty(null)}
+          openChat={(property) => {
+            setChatProperty(property);
+            setModalProperty(null);
+          }}
         />
+      )}
+
+      {chatProperty && (
+        <div className="fixed inset-0 z-[70] bg-black bg-opacity-40 flex items-center justify-center">
+          <ChatBox
+            senderId={localStorage.getItem("userId")}
+            receiverId={chatProperty.user_id}
+            propertyId={chatProperty.property_id}
+            onClose={() => setChatProperty(null)}
+          />
+        </div>
       )}
     </div>
   );

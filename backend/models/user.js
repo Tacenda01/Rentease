@@ -14,8 +14,6 @@ async function initializeTables() {
         blocked BOOLEAN DEFAULT FALSE
     );
 `);
-
-
     await pool.query(`
     CREATE TABLE IF NOT EXISTS landlords (
         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -26,6 +24,18 @@ async function initializeTables() {
         phone TEXT,
         blocked BOOLEAN DEFAULT FALSE
     );
+`);
+
+
+    await pool.query(`
+  CREATE TABLE IF NOT EXISTS bookings (
+    booking_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    tenant_id UUID REFERENCES tenants(id) ON DELETE CASCADE,
+    property_id UUID REFERENCES properties(property_id) ON DELETE CASCADE,
+    move_in_date DATE NOT NULL,
+    duration INTEGER NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  );
 `);
 
 
@@ -56,8 +66,8 @@ async function initializeTables() {
 `);
 
     await pool.query(`
-    CREATE TABLE IF NOT EXISTS contact_messages (
-    id SERIAL PRIMARY KEY,
+CREATE TABLE IF NOT EXISTS contact_form_messages (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name TEXT NOT NULL,
     email TEXT NOT NULL,
     message TEXT NOT NULL,
@@ -66,24 +76,41 @@ async function initializeTables() {
 );
 `);
 
+
+    await pool.query(`
+   CREATE TABLE IF NOT EXISTS contact_messages (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    tenant_id UUID NOT NULL,
+    landlord_id UUID NOT NULL,
+    property_id UUID NOT NULL,
+    message TEXT NOT NULL,
+    sender_id UUID NOT NULL,
+    is_read BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
+`);
+
     console.log("All tables initialized with UUID support.");
 }
 
-async function createTenant({ firstName, lastName, email, password }) {
+async function createTenant({ firstName, lastName, email, password, phone }) {
     const result = await pool.query(
-        'INSERT INTO tenants (first_name, last_name, email, password) VALUES ($1, $2, $3, $4) RETURNING id',
-        [firstName, lastName, email, password]
+        'INSERT INTO tenants (first_name, last_name, email, password, phone) VALUES ($1, $2, $3, $4, $5) RETURNING id',
+        [firstName, lastName, email, password, phone]
     );
     return result.rows[0];
 }
 
-async function createLandlord({ firstName, lastName, email, password }) {
+
+async function createLandlord({ firstName, lastName, email, password, phone }) {
     const result = await pool.query(
-        'INSERT INTO landlords (first_name, last_name, email, password) VALUES ($1, $2, $3, $4) RETURNING id',
-        [firstName, lastName, email, password]
+        'INSERT INTO landlords (first_name, last_name, email, password, phone) VALUES ($1, $2, $3, $4, $5) RETURNING id',
+        [firstName, lastName, email, password, phone]
     );
     return result.rows[0];
 }
+
 
 async function findUserByEmail(email, role) {
     const table = role === 'tenant' ? 'tenants' : 'landlords';

@@ -1,0 +1,127 @@
+const express = require('express');
+const router = express.Router();
+const pool = require('../db');
+
+router.post('/', async (req, res) => {
+    const { tenantId, propertyId, moveInDate, duration } = req.body;
+
+    if (!tenantId || !propertyId || !moveInDate || !duration) {
+        return res.status(400).json({ error: 'Missing booking data' });
+    }
+
+    try {
+        const latestBookingResult = await pool.query(
+            `
+      SELECT move_in_date, duration
+      FROM bookings
+      WHERE property_id = $1
+      ORDER BY created_at DESC
+      LIMIT 1
+      `,
+            [propertyId]
+        );
+
+        if (latestBookingResult.rows.length > 0) {
+            const { move_in_date, duration: lastDuration } = latestBookingResult.rows[0];
+
+            const lastMoveInDate = new Date(move_in_date);
+            const lastAvailableDate = new Date(lastMoveInDate);
+            lastAvailableDate.setDate(lastAvailableDate.getDate() + (lastDuration * 30));
+
+            const nextAvailableDate = new Date(lastAvailableDate);
+            nextAvailableDate.setDate(nextAvailableDate.getDate() + 1);
+
+            const requestedMoveIn = new Date(moveInDate);
+
+            if (requestedMoveIn < nextAvailableDate) {
+                return res.status(400).json({
+                    error: `This property is not available before ${nextAvailableDate.toLocaleDateString("en-IN")}`,
+                });
+            }
+        }
+
+        const result = await pool.query(
+            `INSERT INTO bookings (tenant_id, property_id, move_in_date, duration)
+       VALUES ($1, $2, $3, $4)
+       RETURNING *`,
+            [tenantId, propertyId, moveInDate, duration]
+        );
+
+        res.status(201).json({ message: 'Booking successful', booking: result.rows[0] });
+    } catch (err) {
+        console.error('Booking insert error:', err);
+        res.status(500).json({ error: 'Server error while booking' });
+    }
+});
+router.get('/tenant/:tenantId', async (req, res) => {
+    const { tenantId } = req.params;
+
+    try {
+        const result = await pool.query(`
+      SELECT 
+        b.*, 
+        p.title, 
+        p.description, 
+        p.location, 
+        p.image_urls, 
+        p.property_id
+      FROM bookings b
+      JOIN properties p ON b.property_id = p.property_id
+      WHERE b.tenant_id = $1
+      ORDER BY b.created_at DESC
+    `, [tenantId]);
+
+        const bookings = result.rows.map(row => ({
+            ...row,
+            images: Array.isArray(row.image_urls)
+                ? row.image_urls
+                : row.image_urls?.replace(/^{|}$/g, '').split(',').map(url => url.trim()) || [],
+        }));
+
+        res.json(bookings);
+    } catch (error) {
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+router.get('/landlord/:landlordId', async (req, res) => {
+    const { landlordId } = req.params;
+
+    try {
+        const result = await pool.query(`
+            SELECT 
+                b.*, 
+                t.first_name, 
+                t.last_name, 
+                t.phone,
+                p.property_id,
+                p.title,
+                p.description,
+                p.location,
+                p.image_urls
+            FROM bookings b
+            JOIN tenants t ON b.tenant_id = t.id
+            JOIN properties p ON b.property_id = p.property_id
+            WHERE p.user_id = $1
+            ORDER BY b.created_at DESC
+        `, [landlordId]);
+
+        const bookings = result.rows.map(row => ({
+            ...row,
+            tenant_name: `${row.first_name} ${row.last_name}`,
+            tenant_phone: row.phone,
+            images: Array.isArray(row.image_urls)
+                ? row.image_urls
+                : (row.image_urls ? row.image_urls.replace(/^{|}$/g, '').split(',').map(url => url.trim()) : []),
+        }));
+
+        res.json(bookings);
+    } catch (err) {
+        console.error('Error fetching bookings for landlord:', err);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+
+
+module.exports = router;

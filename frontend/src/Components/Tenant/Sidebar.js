@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { useLocation, Link } from 'react-router-dom';
-import { MdDashboard } from 'react-icons/md';
 import {
   FaSearch,
   FaCalendarCheck,
@@ -12,7 +11,6 @@ import { FiLogOut, FiMenu, FiX } from 'react-icons/fi';
 import { toast } from 'react-toastify';
 
 const navItems = [
-  { label: 'Dashboard', path: '/tenant/dashboard', icon: <MdDashboard /> },
   { label: 'Search Properties', path: '/tenant/search', icon: <FaSearch /> },
   { label: 'My Bookings', path: '/tenant/bookings', icon: <FaCalendarCheck /> },
   { label: 'Messages', path: '/tenant/messages', icon: <FaComments /> },

@@ -29,9 +29,9 @@ const verifyToken = (req, res, next) => {
 };
 
 router.post('/register', async (req, res) => {
-    const { firstName, lastName, email, password, role } = req.body;
+    const { firstName, lastName, email, password, phone, role } = req.body;
 
-    if (!firstName || !lastName || !email || !password || !role) {
+    if (!firstName || !lastName || !email || !password || !phone || !role) {
         return res.status(400).json({ error: 'All fields are required.' });
     }
 
@@ -40,9 +40,9 @@ router.post('/register', async (req, res) => {
         let user;
 
         if (role === 'tenant') {
-            user = await createTenant({ firstName, lastName, email, password: hashedPassword });
+            user = await createTenant({ firstName, lastName, email, password: hashedPassword, phone });
         } else if (role === 'landlord') {
-            user = await createLandlord({ firstName, lastName, email, password: hashedPassword });
+            user = await createLandlord({ firstName, lastName, email, password: hashedPassword, phone });
         } else {
             return res.status(400).json({ error: 'Invalid role.' });
         }
@@ -53,6 +53,7 @@ router.post('/register', async (req, res) => {
         res.status(500).json({ error: 'User already exists or registration failed.' });
     }
 });
+
 
 router.post('/login', async (req, res) => {
     const { email, password, role } = req.body;

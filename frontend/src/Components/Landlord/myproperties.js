@@ -78,7 +78,7 @@ export default function MyProperties() {
     <div className="p-6 bg-[#F9FAFB] min-h-screen">
       <div className="max-w-7xl mx-auto">
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-8 mt-4">
-          <h1 className="text-3xl font-bold text-gray-800 mb-4 sm:mb-0 text-center sm:text-left">
+          <h1 className="text-2xl font-semibold mb-6 text-gray-700 text-center">
             My Properties
           </h1>
           <button
