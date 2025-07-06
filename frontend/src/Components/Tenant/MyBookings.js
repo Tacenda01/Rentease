@@ -28,7 +28,7 @@ export default function MyBookings() {
   }, [tenantId]);
 
   return (
-    <div className="p-4 bg-[#F9FAFB] min-h-screen mt-6">
+    <div className="p-4 bg-[#F9FAFB] min-h-screen mt-2 ml-2">
       <h1 className="text-2xl font-semibold text-[#1F2937] mb-6 text-center sm:text-left">
         My Bookings
       </h1>

@@ -57,8 +57,8 @@ const TenantLayout = () => {
         className={`flex-1 p-4 transition-all duration-300 
           ${collapsed ? 'md:ml-20' : 'md:ml-64'} ml-0`}
       >
-        <div className="flex justify-start items-center ml-6 ">
-          <div className="flex items-center gap-3 mt-2">
+        <div className="flex justify-center md:justify-start items-center mt-4 md:mt-0 md:ml-6">
+          <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center text-base font-bold shadow-md">
               {getInitials()}
             </div>
@@ -66,8 +66,8 @@ const TenantLayout = () => {
               Hi, {firstName} {lastName}
             </div>
           </div>
-
         </div>
+
         <Outlet />
       </main>
     </div>

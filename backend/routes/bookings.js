@@ -47,7 +47,7 @@ router.post('/', async (req, res) => {
             [tenantId, propertyId, moveInDate, duration]
         );
 
-        res.status(201).json({ message: 'Booking successful', booking: result.rows[0] });
+        res.status(201).json({ booking_id: result.rows[0].booking_id });
     } catch (err) {
         console.error('Booking insert error:', err);
         res.status(500).json({ error: 'Server error while booking' });

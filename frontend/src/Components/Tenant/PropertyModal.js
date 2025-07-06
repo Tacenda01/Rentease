@@ -5,12 +5,12 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
 export default function PropertyModal({ property, onClose, openChat }) {
-  const [localProperty, setLocalProperty] = useState(property);
   const [galleryOpen, setGalleryOpen] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [bookingModalOpen, setBookingModalOpen] = useState(false);
   const [moveInDate, setMoveInDate] = useState(null);
   const [duration, setDuration] = useState(1);
+  const [loading, setLoading] = useState(false);
 
   const openGallery = (index) => {
     setCurrentIndex(index);
@@ -22,75 +22,86 @@ export default function PropertyModal({ property, onClose, openChat }) {
   const prevImage = (e) => {
     e.stopPropagation();
     setCurrentIndex((prev) =>
-      prev === 0 ? localProperty.images.length - 1 : prev - 1
+      prev === 0 ? property.images.length - 1 : prev - 1
     );
   };
 
   const nextImage = (e) => {
     e.stopPropagation();
     setCurrentIndex((prev) =>
-      prev === localProperty.images.length - 1 ? 0 : prev + 1
+      prev === property.images.length - 1 ? 0 : prev + 1
     );
   };
 
-  const handleContactOwner = () => openChat(localProperty);
+  const handleContactOwner = () => openChat(property);
 
   const handleBookingSubmit = async () => {
+    if (loading) return;
+
     if (!moveInDate || duration <= 0) {
       toast.error("Please enter a valid move-in date and duration.");
       return;
     }
 
-    try {
-      const tenantId = localStorage.getItem("userId");
-      if (!tenantId) {
-        toast.error("You must be logged in as a tenant to book.");
-        return;
-      }
+    const tenantId = localStorage.getItem("userId");
+    if (!tenantId) {
+      toast.error("You must be logged in as a tenant to book.");
+      return;
+    }
 
-      const response = await fetch("http://localhost:5000/api/bookings", {
+    setLoading(true);
+
+    try {
+      const propertyRes = await fetch(`http://localhost:5000/api/property/${property.property_id}`);
+      if (!propertyRes.ok) throw new Error("Failed to fetch property details.");
+
+      const propertyData = await propertyRes.json();
+      const unitPrice = propertyData.price;
+      if (!unitPrice || unitPrice <= 0) throw new Error("Invalid property price.");
+
+      const totalAmount = unitPrice * duration;
+
+      const res = await fetch("http://localhost:5000/api/payment/create-checkout-session", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           tenantId,
-          propertyId: localProperty.property_id,
+          propertyId: property.property_id,
+          amount: totalAmount,
           moveInDate: moveInDate.toLocaleDateString("en-CA"),
           duration,
         }),
-
       });
 
-      const data = await response.json();
+      const data = await res.json();
 
-      if (response.ok) {
-        toast.success("Booking successful!");
-        setBookingModalOpen(false);
-
-        const newAvailableDate = new Date(moveInDate);
-        newAvailableDate.setMonth(newAvailableDate.getMonth() + duration);
-
-        setLocalProperty((prev) => ({
-          ...prev,
-          available_date: newAvailableDate.toLocaleDateString("en-CA"),
+      if (data.url) {
+        localStorage.setItem("pendingBooking", JSON.stringify({
+          tenantId,
+          propertyId: property.property_id,
+          moveInDate: moveInDate.toLocaleDateString("en-CA"),
+          duration,
         }));
+        window.location.href = data.url;
+      } else {
+        toast.error("Stripe payment initiation failed.");
       }
-      else {
-        toast.error("Booking failed: " + (data.error || "Unknown error"));
-      }
-    } catch (error) {
-      console.error("Booking error:", error);
-      toast.error("Something went wrong. Please try again.");
+    } catch (err) {
+      console.error("Booking/Stripe error:", err);
+      toast.error("Something went wrong during booking or payment.");
+    } finally {
+      setLoading(false);
     }
   };
 
-  const availableDateObj = localProperty.available_date
-    ? new Date(localProperty.available_date)
+  const availableDateObj = property.available_date
+    ? new Date(property.available_date)
     : new Date();
 
   const minBookingDate = new Date(availableDateObj);
   minBookingDate.setDate(minBookingDate.getDate());
 
-  const imagesForScroll = [...localProperty.images, ...localProperty.images];
+  const imagesForScroll = [...property.images, ...property.images];
 
   return (
     <>
@@ -103,8 +114,8 @@ export default function PropertyModal({ property, onClose, openChat }) {
             <FaTimes size={20} />
           </button>
 
-          <h2 className="text-2xl font-bold mb-2">{localProperty.title}</h2>
-          <p className="text-gray-600 mb-4">{localProperty.city}</p>
+          <h2 className="text-2xl font-bold mb-2">{property.title}</h2>
+          <p className="text-gray-600 mb-4">{property.city}</p>
 
           <div className="relative overflow-hidden mb-4" style={{ height: "6rem" }}>
             <div
@@ -117,7 +128,7 @@ export default function PropertyModal({ property, onClose, openChat }) {
                   src={img}
                   alt={`Slide ${idx}`}
                   className="h-24 w-32 object-cover rounded cursor-pointer"
-                  onClick={() => openGallery(idx % localProperty.images.length)}
+                  onClick={() => openGallery(idx % property.images.length)}
                   draggable={false}
                 />
               ))}
@@ -125,7 +136,7 @@ export default function PropertyModal({ property, onClose, openChat }) {
           </div>
 
           <p className="text-gray-700 mb-6 whitespace-pre-line">
-            {localProperty.description}
+            {property.description}
           </p>
 
           <div className="flex flex-col md:flex-row justify-center items-center gap-4">
@@ -136,7 +147,9 @@ export default function PropertyModal({ property, onClose, openChat }) {
               Contact Owner
             </button>
             <button
-              className="bg-sky-500 text-white px-4 py-2 rounded hover:bg-sky-600"
+              disabled={loading}
+              className={`px-4 py-2 rounded text-white ${loading ? "bg-gray-400 cursor-not-allowed" : "bg-sky-500 hover:bg-sky-600"
+                }`}
               onClick={() => setBookingModalOpen(true)}
             >
               Book this Property
@@ -187,16 +200,19 @@ export default function PropertyModal({ property, onClose, openChat }) {
 
             <div className="flex justify-end gap-2">
               <button
+                disabled={loading}
                 className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
                 onClick={() => setBookingModalOpen(false)}
               >
                 Cancel
               </button>
               <button
-                className="px-4 py-2 bg-sky-500 text-white rounded hover:bg-sky-600"
+                disabled={loading}
+                className={`px-4 py-2 rounded text-white ${loading ? "bg-gray-400 cursor-not-allowed" : "bg-sky-500 hover:bg-sky-600"
+                  }`}
                 onClick={handleBookingSubmit}
               >
-                Confirm Booking
+                {loading ? "Processing..." : "Confirm Booking"}
               </button>
             </div>
           </div>
@@ -224,7 +240,7 @@ export default function PropertyModal({ property, onClose, openChat }) {
             <FaChevronLeft />
           </button>
           <img
-            src={localProperty.images[currentIndex]}
+            src={property.images[currentIndex]}
             alt={`Slide ${currentIndex}`}
             className="max-h-[90vh] max-w-[90vw] rounded shadow-lg select-none"
             onClick={(e) => e.stopPropagation()}

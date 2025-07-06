@@ -8,6 +8,8 @@ const propertyRoutes = require('./routes/property');
 const contactRoutes = require('./routes/contactform');
 const messagesRoute = require('./routes/messages');
 const bookingsRoute = require('./routes/bookings');
+const paymentRoutes = require("./routes/payment");
+
 const { initializeTables } = require('./models/user');
 
 const app = express();
@@ -20,6 +22,7 @@ app.use('/api/user', userRoutes);
 app.use('/api', contactRoutes);
 app.use('/api/messages', messagesRoute);
 app.use('/api/bookings', bookingsRoute);
+app.use("/api/payment", paymentRoutes);
 
 const PORT = process.env.PORT || 5000;
 

@@ -12,8 +12,8 @@ async function initializeTables() {
         password TEXT NOT NULL,
         phone TEXT,
         blocked BOOLEAN DEFAULT FALSE
-    );
-`);
+    );`);
+
     await pool.query(`
     CREATE TABLE IF NOT EXISTS landlords (
         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -23,30 +23,7 @@ async function initializeTables() {
         password TEXT NOT NULL,
         phone TEXT,
         blocked BOOLEAN DEFAULT FALSE
-    );
-`);
-
-
-    await pool.query(`
-  CREATE TABLE IF NOT EXISTS bookings (
-    booking_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    tenant_id UUID REFERENCES tenants(id) ON DELETE CASCADE,
-    property_id UUID REFERENCES properties(property_id) ON DELETE CASCADE,
-    move_in_date DATE NOT NULL,
-    duration INTEGER NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-  );
-`);
-
-
-    await pool.query(`
-        CREATE TABLE IF NOT EXISTS admins (
-            id SERIAL PRIMARY KEY,
-            name TEXT NOT NULL,
-            email TEXT UNIQUE NOT NULL,
-            password TEXT NOT NULL
-        );
-    `);
+    );`);
 
     await pool.query(`
     CREATE TABLE IF NOT EXISTS properties (
@@ -62,37 +39,62 @@ async function initializeTables() {
         area INTEGER,
         property_type TEXT,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    );
-`);
+    );`);
 
     await pool.query(`
-CREATE TABLE IF NOT EXISTS contact_form_messages (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    name TEXT NOT NULL,
-    email TEXT NOT NULL,
-    message TEXT NOT NULL,
-    is_read BOOLEAN DEFAULT FALSE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-`);
-
+    CREATE TABLE IF NOT EXISTS bookings (
+        booking_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        tenant_id UUID REFERENCES tenants(id) ON DELETE CASCADE,
+        property_id UUID REFERENCES properties(property_id) ON DELETE CASCADE,
+        move_in_date DATE NOT NULL,
+        duration INTEGER NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );`);
 
     await pool.query(`
-   CREATE TABLE IF NOT EXISTS contact_messages (
-    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-    tenant_id UUID NOT NULL,
-    landlord_id UUID NOT NULL,
-    property_id UUID NOT NULL,
-    message TEXT NOT NULL,
-    sender_id UUID NOT NULL,
-    is_read BOOLEAN DEFAULT FALSE,
-    created_at TIMESTAMP DEFAULT NOW()
-);
+    CREATE TABLE IF NOT EXISTS admins (
+        id SERIAL PRIMARY KEY,
+        name TEXT NOT NULL,
+        email TEXT UNIQUE NOT NULL,
+        password TEXT NOT NULL
+    );`);
 
-`);
+    await pool.query(`
+    CREATE TABLE IF NOT EXISTS contact_form_messages (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        name TEXT NOT NULL,
+        email TEXT NOT NULL,
+        message TEXT NOT NULL,
+        is_read BOOLEAN DEFAULT FALSE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );`);
+
+    await pool.query(`
+    CREATE TABLE IF NOT EXISTS contact_messages (
+        id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+        tenant_id UUID NOT NULL,
+        landlord_id UUID NOT NULL,
+        property_id UUID NOT NULL,
+        message TEXT NOT NULL,
+        sender_id UUID NOT NULL,
+        is_read BOOLEAN DEFAULT FALSE,
+        created_at TIMESTAMP DEFAULT NOW()
+    );`);
+
+    await pool.query(`
+    CREATE TABLE IF NOT EXISTS payments (
+        payment_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        tenant_id UUID REFERENCES tenants(id) ON DELETE CASCADE,
+        booking_id UUID REFERENCES bookings(booking_id) ON DELETE SET NULL,
+        transaction_id VARCHAR(100) NOT NULL UNIQUE,
+        amount INTEGER NOT NULL,
+        status VARCHAR(50) NOT NULL,
+        payment_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );`);
 
     console.log("All tables initialized with UUID support.");
 }
+
 
 async function createTenant({ firstName, lastName, email, password, phone }) {
     const result = await pool.query(
@@ -102,7 +104,6 @@ async function createTenant({ firstName, lastName, email, password, phone }) {
     return result.rows[0];
 }
 
-
 async function createLandlord({ firstName, lastName, email, password, phone }) {
     const result = await pool.query(
         'INSERT INTO landlords (first_name, last_name, email, password, phone) VALUES ($1, $2, $3, $4, $5) RETURNING id',
@@ -110,7 +111,6 @@ async function createLandlord({ firstName, lastName, email, password, phone }) {
     );
     return result.rows[0];
 }
-
 
 async function findUserByEmail(email, role) {
     const table = role === 'tenant' ? 'tenants' : 'landlords';
@@ -165,6 +165,66 @@ async function deleteLandlordAccount(email) {
     await pool.query('DELETE FROM landlords WHERE email = $1', [email]);
 }
 
+
+async function savePayment({ tenantId, transactionId, amount, status, bookingId }) {
+    const existing = await pool.query(
+        'SELECT * FROM payments WHERE transaction_id = $1',
+        [transactionId]
+    );
+
+    if (existing.rows.length > 0) {
+        console.log("Duplicate transaction, skipping insert:", transactionId);
+        return existing.rows[0];
+    }
+
+    const result = await pool.query(
+        `INSERT INTO payments (tenant_id, booking_id, transaction_id, amount, status)
+         VALUES ($1, $2, $3, $4, $5) RETURNING *`,
+        [tenantId, bookingId, transactionId, amount, status]
+    );
+
+    return result.rows[0];
+}
+
+async function getPaymentsByTenantId(tenantId) {
+    const result = await pool.query(
+        'SELECT * FROM payments WHERE tenant_id = $1 ORDER BY payment_date DESC',
+        [tenantId]
+    );
+    return result.rows;
+}
+
+async function getAllPaymentsWithBookingsByTenantId(tenantId) {
+    const result = await pool.query(`
+        SELECT 
+            p.payment_id,
+            p.transaction_id,
+            p.amount,
+            p.status,
+            TO_CHAR(p.payment_date, 'YYYY-MM-DD') AS payment_date,
+            b.booking_id,
+            b.property_id,
+            TO_CHAR(b.move_in_date, 'YYYY-MM-DD') AS move_in_date,
+            b.duration
+        FROM payments p
+        LEFT JOIN bookings b ON p.booking_id = b.booking_id
+        WHERE p.tenant_id = $1
+        ORDER BY p.payment_date DESC;
+    `, [tenantId]);
+
+    return result.rows.map(row => ({
+        ...row,
+        payment_date: row.payment_date,
+        booking: {
+            booking_id: row.booking_id,
+            property_id: row.property_id,
+            move_in_date: row.move_in_date,
+            duration: row.duration
+        }
+    }));
+}
+
+
 module.exports = {
     initializeTables,
     createTenant,
@@ -178,5 +238,8 @@ module.exports = {
     updateTenantPassword,
     updateLandlordPassword,
     deleteTenantAccount,
-    deleteLandlordAccount
+    deleteLandlordAccount,
+    savePayment,
+    getPaymentsByTenantId,
+    getAllPaymentsWithBookingsByTenantId
 };
