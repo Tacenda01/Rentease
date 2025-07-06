@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import { MdDashboard } from 'react-icons/md';
 import {
   FaHome,
   FaCalendarAlt,
@@ -12,7 +11,6 @@ import { FiLogOut, FiMenu, FiX } from 'react-icons/fi';
 import { toast } from 'react-toastify';
 
 const navItems = [
-  { label: 'Dashboard', to: '/landlord/dashboard', icon: <MdDashboard /> },
   { label: 'My Properties', to: '/landlord/properties', icon: <FaHome /> },
   { label: 'Bookings', to: '/landlord/bookings', icon: <FaCalendarAlt /> },
   { label: 'Messages', to: '/landlord/messages', icon: <FaComments /> },
@@ -85,21 +83,21 @@ function Sidebar({ collapsed, setCollapsed }) {
   return (
     <>
       <div
-        className={`fixed z-[100] top-0 left-0 h-full bg-white border-r border-slate-200 transition-all duration-300 ease-in-out
+        className={`fixed z-40 top-0 left-0 h-full bg-white border-r border-slate-200 transition-all duration-300 ease-in-out
         ${collapsed ? 'w-20' : 'w-64'} hidden md:flex flex-col`}
       >
         <SidebarContent />
       </div>
 
       <button
-        className="md:hidden fixed top-4 left-4 z-[150] bg-white p-2 rounded-md shadow-md border border-gray-200"
+        className="md:hidden fixed top-4 left-4 z-50 bg-white p-2 rounded-md shadow-md border border-gray-200"
         onClick={() => setMobileOpen(true)}
       >
         <FiMenu className="text-2xl text-gray-700" />
       </button>
 
       {mobileOpen && (
-        <div className="fixed inset-0 z-[150] flex">
+        <div className="fixed inset-0 z-50 flex">
           <div className="w-64 bg-white h-full shadow-lg flex flex-col">
             <SidebarContent isMobile />
           </div>

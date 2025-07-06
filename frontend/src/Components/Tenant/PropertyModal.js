@@ -1,56 +1,112 @@
 import { useState } from "react";
-import {
-  FaTimes, FaChevronLeft, FaChevronRight
-} from "react-icons/fa";
+import { FaTimes, FaChevronLeft, FaChevronRight } from "react-icons/fa";
+import { toast } from "react-toastify";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
-export default function PropertyModal({ property, onClose }) {
+export default function PropertyModal({ property, onClose, openChat }) {
+  const [localProperty, setLocalProperty] = useState(property);
   const [galleryOpen, setGalleryOpen] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [bookingModalOpen, setBookingModalOpen] = useState(false);
+  const [moveInDate, setMoveInDate] = useState(null);
+  const [duration, setDuration] = useState(1);
 
   const openGallery = (index) => {
     setCurrentIndex(index);
     setGalleryOpen(true);
   };
 
-  const closeGallery = () => {
-    setGalleryOpen(false);
-  };
+  const closeGallery = () => setGalleryOpen(false);
 
   const prevImage = (e) => {
     e.stopPropagation();
-    setCurrentIndex((prev) => (prev === 0 ? property.images.length - 1 : prev - 1));
+    setCurrentIndex((prev) =>
+      prev === 0 ? localProperty.images.length - 1 : prev - 1
+    );
   };
 
   const nextImage = (e) => {
     e.stopPropagation();
-    setCurrentIndex((prev) => (prev === property.images.length - 1 ? 0 : prev + 1));
+    setCurrentIndex((prev) =>
+      prev === localProperty.images.length - 1 ? 0 : prev + 1
+    );
   };
 
-  const imagesForScroll = [...property.images, ...property.images];
+  const handleContactOwner = () => openChat(localProperty);
+
+  const handleBookingSubmit = async () => {
+    if (!moveInDate || duration <= 0) {
+      toast.error("Please enter a valid move-in date and duration.");
+      return;
+    }
+
+    try {
+      const tenantId = localStorage.getItem("userId");
+      if (!tenantId) {
+        toast.error("You must be logged in as a tenant to book.");
+        return;
+      }
+
+      const response = await fetch("http://localhost:5000/api/bookings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          tenantId,
+          propertyId: localProperty.property_id,
+          moveInDate: moveInDate.toLocaleDateString("en-CA"),
+          duration,
+        }),
+
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        toast.success("Booking successful!");
+        setBookingModalOpen(false);
+
+        const newAvailableDate = new Date(moveInDate);
+        newAvailableDate.setMonth(newAvailableDate.getMonth() + duration);
+
+        setLocalProperty((prev) => ({
+          ...prev,
+          available_date: newAvailableDate.toLocaleDateString("en-CA"),
+        }));
+      }
+      else {
+        toast.error("Booking failed: " + (data.error || "Unknown error"));
+      }
+    } catch (error) {
+      console.error("Booking error:", error);
+      toast.error("Something went wrong. Please try again.");
+    }
+  };
+
+  const availableDateObj = localProperty.available_date
+    ? new Date(localProperty.available_date)
+    : new Date();
+
+  const minBookingDate = new Date(availableDateObj);
+  minBookingDate.setDate(minBookingDate.getDate());
+
+  const imagesForScroll = [...localProperty.images, ...localProperty.images];
 
   return (
     <>
-      <div
-        className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4"
-        aria-modal="true"
-        role="dialog"
-      >
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
         <div className="bg-white max-w-2xl w-full rounded-xl shadow-lg relative overflow-y-auto max-h-[90vh] p-6">
           <button
             onClick={onClose}
             className="absolute top-4 right-4 text-gray-600 hover:text-red-500"
-            aria-label="Close modal"
           >
             <FaTimes size={20} />
           </button>
 
-          <h2 className="text-2xl font-bold mb-2">{property.title}</h2>
-          <p className="text-gray-600 mb-4">{property.city}</p>
+          <h2 className="text-2xl font-bold mb-2">{localProperty.title}</h2>
+          <p className="text-gray-600 mb-4">{localProperty.city}</p>
 
-          <div
-            className="relative overflow-hidden mb-4"
-            style={{ height: "6rem" }}
-          >
+          <div className="relative overflow-hidden mb-4" style={{ height: "6rem" }}>
             <div
               className="flex space-x-2 absolute top-0 left-0 animate-scroll-left hover:animation-play-state-paused"
               style={{ width: `${imagesForScroll.length * 8}rem` }}
@@ -60,33 +116,97 @@ export default function PropertyModal({ property, onClose }) {
                   key={idx}
                   src={img}
                   alt={`Slide ${idx}`}
-                  className="h-24 w-32 object-cover rounded flex-shrink-0 cursor-pointer"
-                  onClick={() => openGallery(idx % property.images.length)}
+                  className="h-24 w-32 object-cover rounded cursor-pointer"
+                  onClick={() => openGallery(idx % localProperty.images.length)}
                   draggable={false}
                 />
               ))}
             </div>
           </div>
 
-          <p className="text-gray-700 mb-6 whitespace-pre-line">{property.description}</p>
+          <p className="text-gray-700 mb-6 whitespace-pre-line">
+            {localProperty.description}
+          </p>
 
           <div className="flex flex-col md:flex-row justify-center items-center gap-4">
-            <button className="bg-emerald-500 text-white px-4 py-2 rounded hover:bg-emerald-600">
+            <button
+              className="bg-emerald-500 text-white px-4 py-2 rounded hover:bg-emerald-600"
+              onClick={handleContactOwner}
+            >
               Contact Owner
             </button>
-            <button className="bg-sky-500 text-white px-4 py-2 rounded hover:bg-sky-600">
+            <button
+              className="bg-sky-500 text-white px-4 py-2 rounded hover:bg-sky-600"
+              onClick={() => setBookingModalOpen(true)}
+            >
               Book this Property
             </button>
           </div>
         </div>
       </div>
 
+      {bookingModalOpen && (
+        <div className="fixed inset-0 z-[100] bg-black bg-opacity-50 flex items-center justify-center">
+          <div className="bg-white rounded-lg p-6 shadow-xl w-full max-w-md relative">
+            <h3 className="text-xl font-semibold mb-4">Book This Property</h3>
+            <button
+              className="absolute top-3 right-3 text-gray-600 hover:text-red-500"
+              onClick={() => setBookingModalOpen(false)}
+            >
+              <FaTimes size={20} />
+            </button>
+
+            <p className="text-sm text-red-500 mb-2">
+              This property is available for booking on{" "}
+              <strong>{minBookingDate.toLocaleDateString("en-IN")}</strong>
+            </p>
+
+            <div className="mb-4">
+              <label className="block mb-1 font-medium">Move-in Date</label>
+              <DatePicker
+                selected={moveInDate}
+                onChange={(date) => setMoveInDate(date)}
+                minDate={minBookingDate}
+                placeholderText="Select a date"
+                dateFormat="dd/MM/yyyy"
+                className="w-full border border-gray-300 rounded px-3 py-2"
+              />
+            </div>
+
+            <div className="mb-4">
+              <label className="block mb-1 font-medium">Duration (months)</label>
+              <input
+                type="number"
+                value={duration}
+                min="1"
+                max="24"
+                onChange={(e) => setDuration(Number(e.target.value))}
+                className="w-full border border-gray-300 rounded px-3 py-2"
+              />
+            </div>
+
+            <div className="flex justify-end gap-2">
+              <button
+                className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
+                onClick={() => setBookingModalOpen(false)}
+              >
+                Cancel
+              </button>
+              <button
+                className="px-4 py-2 bg-sky-500 text-white rounded hover:bg-sky-600"
+                onClick={handleBookingSubmit}
+              >
+                Confirm Booking
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {galleryOpen && (
         <div
           className="fixed inset-0 z-[100] bg-black bg-opacity-90 flex items-center justify-center"
           onClick={closeGallery}
-          aria-modal="true"
-          role="dialog"
         >
           <button
             className="absolute top-5 right-5 text-white text-3xl z-110"
@@ -94,44 +214,34 @@ export default function PropertyModal({ property, onClose }) {
               e.stopPropagation();
               closeGallery();
             }}
-            aria-label="Close gallery"
           >
             <FaTimes />
           </button>
-
           <button
             className="absolute left-5 text-white text-4xl p-2 hover:text-gray-300 z-110"
             onClick={prevImage}
-            aria-label="Previous image"
           >
             <FaChevronLeft />
           </button>
-
           <img
-            src={property.images[currentIndex]}
+            src={localProperty.images[currentIndex]}
             alt={`Slide ${currentIndex}`}
             className="max-h-[90vh] max-w-[90vw] rounded shadow-lg select-none"
             onClick={(e) => e.stopPropagation()}
           />
-
           <button
             className="absolute right-5 text-white text-4xl p-2 hover:text-gray-300 z-110"
             onClick={nextImage}
-            aria-label="Next image"
           >
             <FaChevronRight />
           </button>
         </div>
       )}
 
-      <style jsx>{`
+      <style>{`
         @keyframes scroll-left {
-          0% {
-            transform: translateX(0);
-          }
-          100% {
-            transform: translateX(-50%);
-          }
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
         }
         .animate-scroll-left {
           animation: scroll-left 20s linear infinite;

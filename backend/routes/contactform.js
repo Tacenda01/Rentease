@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const pool = require('../db');
 
-router.post('/contact', async (req, res) => {
+router.post('/notification', async (req, res) => {
     const { name, email, message } = req.body;
 
     if (!name || !email || !message) {
@@ -11,7 +11,7 @@ router.post('/contact', async (req, res) => {
 
     try {
         await pool.query(
-            'INSERT INTO contact_messages (name, email, message) VALUES ($1, $2, $3)',
+            'INSERT INTO contact_form_messages (name, email, message) VALUES ($1, $2, $3)',
             [name, email, message]
         );
         res.status(201).json({ message: 'Message submitted successfully' });
@@ -21,9 +21,11 @@ router.post('/contact', async (req, res) => {
     }
 });
 
-router.get('/contact-messages', async (req, res) => {
+router.get('/notification-messages', async (req, res) => {
     try {
-        const result = await pool.query('SELECT * FROM contact_messages ORDER BY created_at DESC');
+        const result = await pool.query(
+            'SELECT * FROM contact_form_messages ORDER BY created_at DESC'
+        );
         res.json(result.rows);
     } catch (err) {
         console.error('Error fetching messages:', err);
@@ -31,22 +33,20 @@ router.get('/contact-messages', async (req, res) => {
     }
 });
 
-router.patch('/contact/:id', async (req, res) => {
+router.patch('/notification/:id', async (req, res) => {
     const { id } = req.params;
     const { is_read } = req.body;
 
     try {
         await pool.query(
-            'UPDATE contact_messages SET is_read = $1 WHERE id = $2',
+            'UPDATE contact_form_messages SET is_read = $1 WHERE id = $2',
             [is_read, id]
         );
-        res.status(200).json({ message: 'Status updated' });
+        res.status(200).json({ message: 'Read status updated' });
     } catch (err) {
-        console.error("Error updating read status:", err);
-        res.status(500).json({ message: 'Error updating status' });
+        console.error('Error updating is_read:', err);
+        res.status(500).json({ error: 'Failed to update read status' });
     }
 });
-
-
 
 module.exports = router;

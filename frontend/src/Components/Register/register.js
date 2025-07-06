@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { FaUser, FaEnvelope, FaLock } from 'react-icons/fa';
+import { FaUser, FaEnvelope, FaLock, FaPhone } from 'react-icons/fa';
 import RoleToggle from '../RoleToggle/roletoggle';
 import { toast } from 'react-toastify';
 import { Link, useNavigate } from 'react-router-dom';
@@ -12,6 +12,7 @@ export default function Register() {
         lastName: '',
         email: '',
         password: '',
+        phone: '',
     });
 
     const handleChange = e =>
@@ -20,9 +21,15 @@ export default function Register() {
     const handleSubmit = async e => {
         e.preventDefault();
 
-        const { firstName, lastName, email, password } = formData;
+        const { firstName, lastName, email, password, phone } = formData;
 
-        if (firstName && lastName && email.includes('@') && password.length >= 4) {
+        if (
+            firstName &&
+            lastName &&
+            email.includes('@') &&
+            password.length >= 4 &&
+            phone.length >= 8
+        ) {
             try {
                 const res = await fetch('http://localhost:5000/api/auth/register', {
                     method: 'POST',
@@ -32,6 +39,7 @@ export default function Register() {
                         lastName,
                         email,
                         password,
+                        phone,
                         role,
                     }),
                 });
@@ -46,6 +54,7 @@ export default function Register() {
                         lastName: '',
                         email: '',
                         password: '',
+                        phone: '',
                     });
                 } else {
                     toast.error(data.error || 'Registration failed.');
@@ -88,6 +97,19 @@ export default function Register() {
                             name="lastName"
                             placeholder="Last Name"
                             value={formData.lastName}
+                            onChange={handleChange}
+                            required
+                            className="pl-10 w-full py-2 bg-white rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-300 focus:outline-none shadow-sm"
+                        />
+                    </div>
+
+                    <div className="relative">
+                        <FaPhone className="absolute left-3 top-3.5 text-gray-400" />
+                        <input
+                            type="text"
+                            name="phone"
+                            placeholder="Phone Number"
+                            value={formData.phone}
                             onChange={handleChange}
                             required
                             className="pl-10 w-full py-2 bg-white rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-300 focus:outline-none shadow-sm"

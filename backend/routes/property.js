@@ -138,4 +138,36 @@ router.delete('/:id', async (req, res) => {
     }
 });
 
+router.get('/all', async (req, res) => {
+    try {
+        const result = await pool.query(`
+            SELECT 
+                p.*, 
+                b.move_in_date + (b.duration * INTERVAL '30 days') AS available_date
+            FROM properties p
+            LEFT JOIN (
+                SELECT DISTINCT ON (property_id) *
+                FROM bookings
+                ORDER BY property_id, created_at DESC
+            ) b ON b.property_id = p.property_id
+            ORDER BY p.created_at DESC;
+        `);
+
+        const properties = result.rows.map(row => ({
+            ...row,
+            images: Array.isArray(row.image_urls)
+                ? row.image_urls
+                : row.image_urls?.replace(/^{|}$/g, '').split(',').map(url => url.trim()) || [],
+            city: row.location?.split(',')[0] || '',
+            available_date: row.available_date || null
+        }));
+
+        res.json(properties);
+    } catch (error) {
+        console.error('Error fetching properties with availability:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+
 module.exports = router;
