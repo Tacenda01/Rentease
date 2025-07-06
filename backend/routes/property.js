@@ -168,6 +168,36 @@ router.get('/all', async (req, res) => {
         res.status(500).json({ error: 'Internal Server Error' });
     }
 });
+router.get('/:id', async (req, res) => {
+    const { id } = req.params;
+
+    if (!/^[0-9a-fA-F-]{36}$/.test(id)) {
+        return res.status(400).json({ error: 'Invalid UUID format for property_id' });
+    }
+
+    try {
+        const result = await pool.query('SELECT * FROM properties WHERE property_id = $1', [id]);
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: 'Property not found' });
+        }
+
+        const row = result.rows[0];
+
+        const property = {
+            ...row,
+            images: Array.isArray(row.image_urls)
+                ? row.image_urls
+                : row.image_urls?.replace(/^{|}$/g, '').split(',').map(url => url.trim()) || [],
+            city: row.location?.split(',')[0] || '',
+        };
+
+        res.json(property);
+    } catch (error) {
+        console.error('Error fetching property by ID:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
 
 
 module.exports = router;
