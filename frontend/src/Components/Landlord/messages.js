@@ -50,7 +50,7 @@ export default function Messages() {
 
   return (
     <div className="p-6 bg-gray-50 min-h-screen flex flex-col items-start">
-      <h1 className="text-2xl font-semibold mb-6 text-gray-700 text-center">
+      <h1 className="text-2xl font-semibold mb-6 text-gray-700 text-center w-full md:text-left">
         Your Conversations
       </h1>
 

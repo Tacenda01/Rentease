@@ -122,4 +122,142 @@ router.get("/tenant/:tenantId", async (req, res) => {
     }
 });
 
+router.get('/landlord/:landlordId', async (req, res) => {
+    const { landlordId } = req.params;
+
+    try {
+        const result = await pool.query(`
+      SELECT 
+        p.payment_id,
+        p.transaction_id,
+        p.amount,
+        p.status,
+        TO_CHAR(p.payment_date, 'YYYY-MM-DD') AS payment_date,
+        b.booking_id,
+        b.property_id,
+        TO_CHAR(b.move_in_date, 'YYYY-MM-DD') AS move_in_date,
+        b.duration
+      FROM payments p
+      JOIN bookings b ON p.booking_id = b.booking_id
+      JOIN properties pr ON b.property_id = pr.property_id
+      WHERE pr.user_id = $1
+      ORDER BY p.payment_date DESC;
+    `, [landlordId]);
+
+        const payments = result.rows.map(row => ({
+            ...row,
+            booking: {
+                booking_id: row.booking_id,
+                property_id: row.property_id,
+                move_in_date: row.move_in_date,
+                duration: row.duration
+            }
+        }));
+
+        const total = payments.reduce((sum, p) => sum + parseInt(p.amount), 0);
+
+        res.json({ payments, totalEarnings: total });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Failed to fetch landlord payments." });
+    }
+});
+
+router.get('/landlord/:landlordId/monthly-summary', async (req, res) => {
+    const { landlordId } = req.params;
+
+    try {
+        const result = await pool.query(`
+      SELECT 
+        TO_CHAR(p.payment_date, 'YYYY-MM') AS month,
+        SUM(p.amount) AS total
+      FROM payments p
+      JOIN bookings b ON p.booking_id = b.booking_id
+      JOIN properties pr ON b.property_id = pr.property_id
+      WHERE pr.user_id = $1
+      GROUP BY month
+      ORDER BY month DESC
+    `, [landlordId]);
+
+        res.json(result.rows);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Failed to fetch monthly summary' });
+    }
+});
+
+router.get('/landlord/:landlordId/property/:propertyId', async (req, res) => {
+    const { landlordId, propertyId } = req.params;
+
+    try {
+        const result = await pool.query(`
+      SELECT 
+        p.payment_id,
+        p.transaction_id,
+        p.amount,
+        p.status,
+        TO_CHAR(p.payment_date, 'YYYY-MM-DD') AS payment_date,
+        b.booking_id,
+        b.property_id,
+        TO_CHAR(b.move_in_date, 'YYYY-MM-DD') AS move_in_date,
+        b.duration
+      FROM payments p
+      JOIN bookings b ON p.booking_id = b.booking_id
+      JOIN properties pr ON b.property_id = pr.property_id
+      WHERE pr.user_id = $1 AND b.property_id = $2
+      ORDER BY p.payment_date DESC;
+    `, [landlordId, propertyId]);
+
+        const payments = result.rows.map(row => ({
+            ...row,
+            booking: {
+                booking_id: row.booking_id,
+                property_id: row.property_id,
+                move_in_date: row.move_in_date,
+                duration: row.duration
+            }
+        }));
+
+        res.json(payments);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Failed to filter payments." });
+    }
+});
+
+router.get('/all', async (req, res) => {
+    try {
+        const result = await pool.query(`
+      SELECT 
+        p.payment_id,
+        p.transaction_id,
+        p.amount,
+        p.status,
+        TO_CHAR(p.payment_date, 'YYYY-MM-DD') AS payment_date,
+        t.first_name,
+        t.last_name,
+        t.phone,
+        b.move_in_date,
+        b.duration
+      FROM payments p
+      LEFT JOIN tenants t ON p.tenant_id = t.id
+      LEFT JOIN bookings b ON p.booking_id = b.booking_id
+      ORDER BY p.payment_date DESC;
+    `);
+
+        const payments = result.rows.map(row => ({
+            ...row,
+            tenant_name: `${row.first_name} ${row.last_name}`,
+            tenant_phone: row.phone
+        }));
+
+        res.json(payments);
+    } catch (err) {
+        console.error("Error fetching payments:", err);
+        res.status(500).json({ error: "Failed to fetch transactions" });
+    }
+});
+
+
+
 module.exports = router;

@@ -1,7 +1,7 @@
 import { Routes, Route } from 'react-router-dom';
 import LandlordLayout from './landlordlayout';
 import MyProperties from './myproperties';
-import BookingRequests from './bookingrequests';
+import Bookings from './bookings';
 import Messages from './messages';
 import Earnings from './earnings';
 import Profile from './profile';
@@ -15,7 +15,7 @@ function LandlordRoutes() {
       <Route element={<ProtectedRoute allowedRole="landlord" />}>
         <Route path="/" element={<LandlordLayout />}>
           <Route path="properties" element={<MyProperties />} />
-          <Route path="bookings" element={<BookingRequests />} />
+          <Route path="bookings" element={<Bookings />} />
           <Route path="messages" element={<Messages />} />
           <Route path="earnings" element={<Earnings />} />
           <Route path="profile" element={<Profile />} />

@@ -82,8 +82,10 @@ export default function Payments() {
   }
 
   return (
-    <div className="p-6 bg-gray-100 min-h-screen">
-      <h1 className="text-3xl font-bold text-gray-800 mb-6">My Payments</h1>
+    <div className="p-6 min-h-screen">
+      <h1 className="text-3xl font-bold text-gray-800 mb-6 text-center sm:text-left w-full">
+        My Payments
+      </h1>
       {payments.length === 0 ? (
         <p className="text-gray-600">No payments found.</p>
       ) : (

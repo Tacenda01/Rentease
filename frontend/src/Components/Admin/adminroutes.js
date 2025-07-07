@@ -3,7 +3,7 @@ import AdminLayout from './AdminLayout';
 import Dashboard from './Dashboard';
 import Users from './Users';
 import Properties from './Properties';
-import BookingRequests from '../Landlord/bookingrequests';
+import Bookings from './Bookings';
 import Transactions from './Transactions';
 import Notifications from './Notifications';
 
@@ -20,7 +20,7 @@ function AdminRoutes() {
                 <Route path="dashboard" element={<Dashboard />} />
                 <Route path="users" element={<Users />} />
                 <Route path="properties" element={<Properties />} />
-                <Route path="bookings" element={<BookingRequests />} />
+                <Route path="bookings" element={<Bookings />} />
                 <Route path="transactions" element={<Transactions />} />
                 <Route path="notifications" element={<Notifications />} />
                 <Route path="*" element={<Navigate to="dashboard" />} />

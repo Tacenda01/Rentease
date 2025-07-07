@@ -122,6 +122,43 @@ router.get('/landlord/:landlordId', async (req, res) => {
     }
 });
 
+router.get('/all', async (req, res) => {
+    try {
+        const result = await pool.query(`
+      SELECT 
+        b.booking_id,
+        b.move_in_date,
+        b.duration,
+        b.created_at,
+        t.first_name AS tenant_first_name,
+        t.last_name AS tenant_last_name,
+        t.phone AS tenant_phone,
+        p.title,
+        p.location,
+        p.image_urls
+      FROM bookings b
+      JOIN tenants t ON b.tenant_id = t.id
+      JOIN properties p ON b.property_id = p.property_id
+      ORDER BY b.created_at DESC;
+    `);
+
+        const bookings = result.rows.map(row => ({
+            booking_id: row.booking_id,
+            move_in_date: row.move_in_date,
+            duration: row.duration,
+            tenant_name: `${row.tenant_first_name} ${row.tenant_last_name}`,
+            tenant_phone: row.tenant_phone,
+            title: row.title,
+            location: row.location,
+            images: row.image_urls,
+        }));
+
+        res.json(bookings);
+    } catch (err) {
+        console.error("Error fetching all bookings:", err);
+        res.status(500).json({ error: "Failed to fetch all bookings" });
+    }
+});
 
 
 module.exports = router;

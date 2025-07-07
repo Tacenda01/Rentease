@@ -14,7 +14,7 @@ const navItems = [
   { label: 'My Properties', to: '/landlord/properties', icon: <FaHome /> },
   { label: 'Bookings', to: '/landlord/bookings', icon: <FaCalendarAlt /> },
   { label: 'Messages', to: '/landlord/messages', icon: <FaComments /> },
-  { label: 'Earnings & Payouts', to: '/landlord/earnings', icon: <FaMoneyCheckAlt /> },
+  { label: 'Earnings', to: '/landlord/earnings', icon: <FaMoneyCheckAlt /> },
   { label: 'Profile Settings', to: '/landlord/profile', icon: <FaUserCog /> },
 ];
 
@@ -93,7 +93,7 @@ function Sidebar({ collapsed, setCollapsed }) {
         className="md:hidden fixed top-4 left-4 z-50 bg-white p-2 rounded-md shadow-md border border-gray-200"
         onClick={() => setMobileOpen(true)}
       >
-        <FiMenu className="text-2xl text-gray-700" />
+        <FiMenu className="text-2xl text-sky-500" />
       </button>
 
       {mobileOpen && (
