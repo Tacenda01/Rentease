@@ -171,7 +171,9 @@ export default function ProfileSettings() {
         </div>
       )}
 
-      <h1 className="text-2xl font-semibold text-[#1F2937] mb-6">Profile Settings</h1>
+      <h1 className="text-2xl font-semibold text-[#1F2937] mb-6 text-center sm:text-left">
+        Profile Settings
+      </h1>
 
       <form onSubmit={handleSaveProfile} className="bg-white p-6 rounded-2xl shadow border border-[#D1D5DB] mb-8">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

@@ -27,7 +27,7 @@ export default function BookingRequests() {
 
   return (
     <div className="p-6 min-h-screen bg-gray-50">
-      <h1 className="text-2xl font-semibold mb-6 text-gray-700">
+      <h1 className="text-2xl font-semibold text-[#1F2937] mb-6 text-center sm:text-left">
         Bookings
       </h1>
 
