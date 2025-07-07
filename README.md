@@ -82,11 +82,16 @@ cd rentease
 ```
 
 Start the Frontend
+```
 cd frontend
 npm install
 npm start
+```
+
 
 Start the Backend
+```
 cd backend
 npm install
 nodemon server.js
+```
