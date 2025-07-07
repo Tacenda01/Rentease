@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FaTimes, FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import { toast } from "react-toastify";
 import DatePicker from "react-datepicker";
@@ -11,6 +11,9 @@ export default function PropertyModal({ property, onClose, openChat }) {
   const [moveInDate, setMoveInDate] = useState(null);
   const [duration, setDuration] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [minBookingDate, setMinBookingDate] = useState(new Date());
+  const [maxBookingDate, setMaxBookingDate] = useState(new Date());
+  const [bookingMessage, setBookingMessage] = useState('');
 
   const openGallery = (index) => {
     setCurrentIndex(index);
@@ -94,12 +97,37 @@ export default function PropertyModal({ property, onClose, openChat }) {
     }
   };
 
-  const availableDateObj = property.available_date
-    ? new Date(property.available_date)
-    : new Date();
+  useEffect(() => {
+    async function fetchAvailability() {
+      try {
+        const res = await fetch(`http://localhost:5000/api/bookings/availability/${property.property_id}`);
+        const data = await res.json();
 
-  const minBookingDate = new Date(availableDateObj);
-  minBookingDate.setDate(minBookingDate.getDate());
+        const availableDate = new Date(data.availableDate);
+        const today = new Date();
+        const isBooked = availableDate > today;
+
+        const minDate = new Date(availableDate);
+        const maxDate = new Date(availableDate);
+        maxDate.setDate(availableDate.getDate() + 3);
+
+        setMinBookingDate(minDate);
+        setMaxBookingDate(maxDate);
+
+        const message = isBooked
+          ? `This property is currently booked. It will be available for move-in between ${minDate.toLocaleDateString("en-IN")} and ${maxDate.toLocaleDateString("en-IN")}.`
+          : `You can book this property for a move-in date between ${minDate.toLocaleDateString("en-IN")} and ${maxDate.toLocaleDateString("en-IN")}.`;
+
+        setBookingMessage(message);
+      } catch (err) {
+        console.error("Error fetching availability:", err);
+        setBookingMessage("Failed to fetch availability.");
+      }
+    }
+
+    fetchAvailability();
+  }, [property.property_id]);
+
 
   const imagesForScroll = [...property.images, ...property.images];
 
@@ -169,10 +197,7 @@ export default function PropertyModal({ property, onClose, openChat }) {
               <FaTimes size={20} />
             </button>
 
-            <p className="text-sm text-red-500 mb-2">
-              This property is available for booking on{" "}
-              <strong>{minBookingDate.toLocaleDateString("en-IN")}</strong>
-            </p>
+            <p className="text-sm text-red-600 mb-2">{bookingMessage}</p>
 
             <div className="mb-4">
               <label className="block mb-1 font-medium">Move-in Date</label>
@@ -180,6 +205,7 @@ export default function PropertyModal({ property, onClose, openChat }) {
                 selected={moveInDate}
                 onChange={(date) => setMoveInDate(date)}
                 minDate={minBookingDate}
+                maxDate={maxBookingDate}
                 placeholderText="Select a date"
                 dateFormat="dd/MM/yyyy"
                 className="w-full border border-gray-300 rounded px-3 py-2"

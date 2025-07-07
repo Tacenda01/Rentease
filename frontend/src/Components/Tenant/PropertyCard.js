@@ -1,8 +1,34 @@
-export default function PropertyCard({ property, onClick }) {
-  const availableDate = property.available_date
-    ? new Date(property.available_date).toLocaleDateString('en-IN')
-    : null;
+import { useEffect, useState } from "react";
 
+export default function PropertyCard({ property, onClick }) {
+  const [availableDate, setAvailableDate] = useState(new Date());
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchAvailability = async () => {
+      try {
+        const res = await fetch(`http://localhost:5000/api/bookings/availability/${property.property_id}`);
+        const data = await res.json();
+        if (data?.availableDate) {
+          setAvailableDate(new Date(data.availableDate));
+        }
+      } catch (err) {
+        console.error("Failed to fetch availability:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAvailability();
+  }, [property.property_id]);
+
+  const startDate = availableDate;
+  const endDate = new Date(availableDate);
+  endDate.setDate(availableDate.getDate() + 3);
+
+  const infoMessage = property.is_booked
+    ? "Currently booked. Next available for move-in between"
+    : "Available for move-in between";
 
   return (
     <div
@@ -25,9 +51,12 @@ export default function PropertyCard({ property, onClick }) {
         <h2 className="text-lg font-semibold text-sky-600">{property.title}</h2>
         <p className="text-sm text-gray-600">{property.city}</p>
         <p className="text-md font-bold text-emerald-600 mt-2">₹{property.price}/month</p>
-        {availableDate && (
+
+        {!loading && (
           <p className="text-xs text-red-600 mt-2">
-            Note: This property will be available after <strong>{availableDate}</strong>
+            {infoMessage}{" "}
+            <strong>{startDate.toLocaleDateString("en-IN")}</strong> to{" "}
+            <strong>{endDate.toLocaleDateString("en-IN")}</strong>.
           </p>
         )}
       </div>

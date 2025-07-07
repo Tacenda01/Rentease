@@ -160,5 +160,30 @@ router.get('/all', async (req, res) => {
     }
 });
 
+router.get('/availability/:propertyId', async (req, res) => {
+    const { propertyId } = req.params;
+
+    try {
+        const result = await pool.query(`
+      SELECT 
+        MAX(move_in_date + (duration || ' month')::interval) AS booked_till
+      FROM bookings
+      WHERE property_id = $1
+    `, [propertyId]);
+
+        const bookedTill = result.rows[0].booked_till;
+        let availableDate = new Date();
+
+        if (bookedTill && new Date(bookedTill) > availableDate) {
+            availableDate = new Date(bookedTill);
+            availableDate.setDate(availableDate.getDate() + 1);
+        }
+
+        res.json({ availableDate: availableDate.toISOString().split('T')[0] });
+    } catch (err) {
+        console.error('Error fetching availability:', err);
+        res.status(500).json({ error: 'Failed to fetch availability' });
+    }
+});
 
 module.exports = router;
